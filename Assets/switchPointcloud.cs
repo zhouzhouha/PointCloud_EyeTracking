@@ -10,6 +10,7 @@ public class switchPointcloud : MonoBehaviour
     public List<string> pc_paths;
     private int pcr_id = 0;
     public string triggerKey;
+    public PrerecordedPointCloudReader pcdReader;
 
 
     // Start is called before the first frame update
