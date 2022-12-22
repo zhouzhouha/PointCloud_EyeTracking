@@ -15,6 +15,10 @@ public class GazeTrackerXuemei : MonoBehaviour
     private bool eye_callback_registered = false;
     private static Matrix4x4 matWorldToCamera;
     private static Matrix4x4 lastCameraMatrix;
+    private static string PCName;
+    private static string pcname;
+    private static string framename;
+    private static string pcIndex;
     [Tooltip("The reader for the pointclouds for which we get gaze data")]
     public PrerecordedPointCloudReader pcdReader;
 
@@ -30,7 +34,7 @@ public class GazeTrackerXuemei : MonoBehaviour
     public string Session = "A";
     // for verify if the result will be correct or not
     public int LengthOfRay = 25;
-    private LineRenderer GazeRayRenderer;
+    [SerializeField] private LineRenderer GazeRayRenderer; 
 
 
 
@@ -56,24 +60,20 @@ public class GazeTrackerXuemei : MonoBehaviour
         }
 
         // get the userid, folder name, vp of current running
-        //string framename = pcdReader.filename();  // D:/aa/.../userid/pcdname/vpcc/
         //json file: camera position camera rotation gaze origin gaze direction(global local) timestamp frameid
         // frame id = pcdname + filename
         string dirname = "D:/xuemei/RawData/";
-        //string pcdname = pcdReader.dirName; //H1_C1_R1
-        //string file_name = pcdname + userid;
-        //Debug.Log("File Name is:" + file_name);
 
         //init jstats
         // D:/userid//vpcc/EyeData/001_yymmdd.json
         string dirName = Path.Combine(dirname, "EyeData");
+
         if (!System.IO.Directory.Exists(dirName))
         {
-            // create dir
             Directory.CreateDirectory(dirName);
         }
 
-        // 001_20221218.json
+        // 20221218_001_A.json
         string filename = string.Format("{0}_{1}_{2}{3}", DateTime.Now.ToString("yyyyMMdd-HHmm"),userid,Session, ".json");
         Debug.Log("The saved file name is " + filename);
 
@@ -117,8 +117,9 @@ public class GazeTrackerXuemei : MonoBehaviour
     {
         lastCameraMatrix = Camera.main.cameraToWorldMatrix; //  model matrix
         matWorldToCamera = Camera.main.worldToCameraMatrix;
-        //matWorldToViewportPoint = Camera.main.projectionMatrix * Camera.main.worldToCameraMatrix; 
-
+        pcname = pcdReader.dirName; //H1_C1_R1
+        //framename = pcdReader.currentMetadata.filename;
+        //pcIndex = pcname + framename;
 
         if (SRanipal_Eye_Framework.Status != SRanipal_Eye_Framework.FrameworkStatus.WORKING &&
             SRanipal_Eye_Framework.Status != SRanipal_Eye_Framework.FrameworkStatus.NOT_SUPPORT)
@@ -160,8 +161,15 @@ public class GazeTrackerXuemei : MonoBehaviour
         Vector3 GazeDirectionCombined = Camera.main.transform.TransformDirection(GazeDirectionCombinedLocal);
         GazeRayRenderer.SetPosition(0, Camera.main.transform.position - Camera.main.transform.up * 0.05f); //010*0.05
         GazeRayRenderer.SetPosition(1, Camera.main.transform.position + GazeDirectionCombined * LengthOfRay);
+        Debug.Log("HTC Vive Origin:" + (Camera.main.transform.position - Camera.main.transform.up * 0.05f));
+        Debug.Log("HTC Vive Direction:" + GazeDirectionCombined);
+        Vector3 GazeOriGlobal_L = lastCameraMatrix.MultiplyPoint(Vector3.Scale(eyeData.verbose_data.combined.eye_data.gaze_origin_mm * 0.001f, new Vector3(-1, 1, -1)));
+        Vector3 GazeDirGlobal_L = lastCameraMatrix.MultiplyVector(Vector3.Scale(eyeData.verbose_data.combined.eye_data.gaze_direction_normalized, new Vector3(-1, 1, -1)));
+        Debug.DrawLine(GazeOriGlobal_L, GazeDirGlobal_L + GazeDirGlobal_L * LengthOfRay, Color.blue);
+        Debug.Log("My Computation Origin:" + GazeOriGlobal_L);
+        Debug.Log("My Computation Direction:" + GazeDirGlobal_L);
 
-        
+
 
     }
 
@@ -171,7 +179,7 @@ public class GazeTrackerXuemei : MonoBehaviour
         SRanipal_Eye_v2.WrapperUnRegisterEyeDataCallback(Marshal.GetFunctionPointerForDelegate((SRanipal_Eye_v2.CallbackBasic)EyeCallback));
 
         // TODO
-        if (jstatsStream.BaseStream.Length <= 1)
+        if (jstatsStream.BaseStream.Length < 1)
         {
             jstatsStream.WriteLine("{} ]");
         }
@@ -182,13 +190,8 @@ public class GazeTrackerXuemei : MonoBehaviour
 
         jstatsStream.WriteLine("{} ]");
         jstatsStream.Close();
-        //jstatsStream = null;
     }
 
-    //public string Name()
-    //{
-    //    return $"{GetType().Name}#{transform.parent.gameObject.name}.{instanceNumber}";
-    //}
 
     private void Release()
     {
@@ -206,19 +209,12 @@ public class GazeTrackerXuemei : MonoBehaviour
 
         // 1. process local to world
         // convert from camera space to world space (mm to meters)
-        Vector3 gaze_origin_global = lastCameraMatrix.MultiplyPoint(Vector3.Scale(edata.verbose_data.left.gaze_origin_mm / 1000, new Vector3(-1, 1, -1)));
+        Vector3 gaze_origin_global = lastCameraMatrix.MultiplyPoint(Vector3.Scale(edata.verbose_data.left.gaze_origin_mm * 0.001f, new Vector3(-1, 1, -1)));
         Vector3 gaze_direction_global = lastCameraMatrix.MultiplyVector(Vector3.Scale(edata.verbose_data.left.gaze_direction_normalized, new Vector3(-1, 1, -1)));
 
         // this should be viewing and projection matrix
         //or if I can save this matrix, then I can do post processing But I feel directly get these information here is better
         // Matrix4x4 VP_matrix = Camera.main.previousViewProjectionMatrix * Camera.main.worldToCameraMatrix;
-
-        //// 2. calc viewport
-        //Ray r = new Ray(gaze_origin_global, gaze_direction_global);
-        ////Vector3 GazePoint_World = r.GetPoint(10); // WORLD SPACE
-        //Vector3 ViewPos = matWorldToViewportPoint.MultiplyPoint(r.GetPoint(1));  // 
-        //Vector3 ViewPos2 = matWorldToViewportPoint.MultiplyPoint(r.GetPoint(2));  // 
-
         FullData_cwi fData = new FullData_cwi()
         {
             camera_matrix = lastCameraMatrix,
@@ -226,6 +222,7 @@ public class GazeTrackerXuemei : MonoBehaviour
             eye_data_cwi = edata,
             gaze_origin_global = gaze_origin_global,
             gaze_direction_global = gaze_direction_global,
+            pcname = pcname,
             //ViewPos = ViewPos,
             //ViewPos2 = ViewPos2,
         };
@@ -298,6 +295,7 @@ public class GazeTrackerXuemei : MonoBehaviour
         public Vector3 gaze_direction_global;
         public Vector3 ViewPos;
         public Vector3 ViewPos2;
+        public string pcname;
     }
     // left right combined 
 
@@ -399,5 +397,10 @@ public class GazeTrackerXuemei : MonoBehaviour
         public float eye_squeeze; /*!<A value representing how the eye is closed tightly.*/
         public float eye_frown; /*!<A value representing user's frown.*/
     };
+
+    //public class FrameMetadata
+    //{
+    //    public string filename;
+    //}
 
 }
