@@ -204,6 +204,15 @@
       },
       "url": "https://packages.unity.com"
     },
+    "com.unity.recorder": {
+      "version": "3.0.3",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.timeline": "1.0.0"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.roslyn": {
       "version": "0.2.2-preview",
       "depth": 1,
@@ -382,7 +391,7 @@
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "cd74cb25dd001b234596cd4a2d10d1912acce2d2"
+      "hash": "959f2f9bec135030e9ee362348e6f9d8e2b19a31"
     },
     "com.unity.modules.ai": {
       "version": "1.0.0",
