@@ -5,7 +5,8 @@ using UnityEngine.UI;
 
 namespace GazeMetrics
 {
-    [RequireComponent(typeof(GazeMetricsController))]
+    //[RequireComponent(typeof(GazeMetricsController))]
+    [RequireComponent(typeof(CostomeCalGazeMetric))]
     public class GazeMetricsResultsText : MonoBehaviour
     {
         public Text accuracyText;
@@ -13,11 +14,14 @@ namespace GazeMetrics
         public Text sdPrecisionText;
         public Text sampleText;
         public Text validSamplesText;
-        private GazeMetricsController gazeMetricsController;
+        //private GazeMetricsController gazeMetricsController;
+        private CostomeCalGazeMetric gazeMetricsController;
 
         void Awake()
-        {            
-            gazeMetricsController = GetComponent<GazeMetricsController>();
+        {
+            //gazeMetricsController = GetComponent<GazeMetricsController>();
+            gazeMetricsController = GetComponent<CostomeCalGazeMetric>();
+            
         }
 
         void OnEnable()

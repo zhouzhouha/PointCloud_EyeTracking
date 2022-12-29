@@ -21,6 +21,7 @@ public class GazeTrackerXuemei : MonoBehaviour
     private static string pcIndex;
     [Tooltip("The reader for the pointclouds for which we get gaze data")]
     public PrerecordedPointCloudReader pcdReader;
+    public PointCloudRenderer pcdRenderer;
 
     //stats
     public bool writeStats;
@@ -118,8 +119,7 @@ public class GazeTrackerXuemei : MonoBehaviour
         lastCameraMatrix = Camera.main.cameraToWorldMatrix; //  model matrix
         matWorldToCamera = Camera.main.worldToCameraMatrix;
         pcname = pcdReader.dirName; //H1_C1_R1
-        //framename = pcdReader.currentMetadata.filename;
-        //pcIndex = pcname + framename;
+        framename = pcdRenderer.metadataMostRecentReception.filename;
 
         if (SRanipal_Eye_Framework.Status != SRanipal_Eye_Framework.FrameworkStatus.WORKING &&
             SRanipal_Eye_Framework.Status != SRanipal_Eye_Framework.FrameworkStatus.NOT_SUPPORT)
@@ -162,12 +162,15 @@ public class GazeTrackerXuemei : MonoBehaviour
         GazeRayRenderer.SetPosition(0, Camera.main.transform.position - Camera.main.transform.up * 0.05f); //010*0.05
         GazeRayRenderer.SetPosition(1, Camera.main.transform.position + GazeDirectionCombined * LengthOfRay);
         Debug.Log("HTC Vive Origin:" + (Camera.main.transform.position - Camera.main.transform.up * 0.05f));
-        Debug.Log("HTC Vive Direction:" + GazeDirectionCombined);
+        //Debug.Log("HTC Vive Direction:" + GazeDirectionCombined);
         Vector3 GazeOriGlobal_L = lastCameraMatrix.MultiplyPoint(Vector3.Scale(eyeData.verbose_data.combined.eye_data.gaze_origin_mm * 0.001f, new Vector3(-1, 1, -1)));
         Vector3 GazeDirGlobal_L = lastCameraMatrix.MultiplyVector(Vector3.Scale(eyeData.verbose_data.combined.eye_data.gaze_direction_normalized, new Vector3(-1, 1, -1)));
-        Debug.DrawLine(GazeOriGlobal_L, GazeDirGlobal_L + GazeDirGlobal_L * LengthOfRay, Color.blue);
-        Debug.Log("My Computation Origin:" + GazeOriGlobal_L);
-        Debug.Log("My Computation Direction:" + GazeDirGlobal_L);
+
+        Vector3 GazeOriGlobal_L2 = lastCameraMatrix.MultiplyPoint(Vector3.Scale(eyeData.verbose_data.combined.eye_data.gaze_origin_mm * 0.001f, new Vector3(1, 1, -1)));
+        //Debug.DrawLine(GazeOriGlobal_L, GazeDirGlobal_L + GazeDirGlobal_L * LengthOfRay, Color.blue);
+        Debug.Log("My Computation Origin -1:" + GazeOriGlobal_L);
+        Debug.Log("My Computation Origin 1:" + GazeOriGlobal_L2);
+       // Debug.Log("My Computation Direction :" + GazeDirGlobal_L);
 
 
 
@@ -209,9 +212,16 @@ public class GazeTrackerXuemei : MonoBehaviour
 
         // 1. process local to world
         // convert from camera space to world space (mm to meters)
-        Vector3 gaze_origin_global = lastCameraMatrix.MultiplyPoint(Vector3.Scale(edata.verbose_data.left.gaze_origin_mm * 0.001f, new Vector3(-1, 1, -1)));
-        Vector3 gaze_direction_global = lastCameraMatrix.MultiplyVector(Vector3.Scale(edata.verbose_data.left.gaze_direction_normalized, new Vector3(-1, 1, -1)));
+        Vector3 global_o_c = lastCameraMatrix.MultiplyPoint(Vector3.Scale(edata.verbose_data.combined.eye_data.gaze_origin_mm * 0.001f, new Vector3(1, 1, -1)));
+        Vector3 global_d_c = lastCameraMatrix.MultiplyVector(Vector3.Scale(edata.verbose_data.combined.eye_data.gaze_direction_normalized, new Vector3(-1, 1, -1)));
 
+        Vector3 global_o_l = lastCameraMatrix.MultiplyPoint(Vector3.Scale(edata.verbose_data.left.gaze_origin_mm * 0.001f, new Vector3(-1, 1, -1)));
+        Vector3 global_d_l = lastCameraMatrix.MultiplyVector(Vector3.Scale(edata.verbose_data.left.gaze_direction_normalized, new Vector3(-1, 1, -1)));
+
+        Vector3 global_o_r = lastCameraMatrix.MultiplyPoint(Vector3.Scale(edata.verbose_data.right.gaze_origin_mm * 0.001f, new Vector3(-1, 1, -1)));
+        Vector3 global_d_r = lastCameraMatrix.MultiplyVector(Vector3.Scale(edata.verbose_data.right.gaze_direction_normalized, new Vector3(-1, 1, -1)));
+        Vector3 mean_l_r_o = (global_o_l + global_o_r) * 0.5f;
+        Vector3 mean_l_r_d = (global_d_l + global_d_r) * 0.5f;
         // this should be viewing and projection matrix
         //or if I can save this matrix, then I can do post processing But I feel directly get these information here is better
         // Matrix4x4 VP_matrix = Camera.main.previousViewProjectionMatrix * Camera.main.worldToCameraMatrix;
@@ -220,11 +230,16 @@ public class GazeTrackerXuemei : MonoBehaviour
             camera_matrix = lastCameraMatrix,
             pointcloudTs = lasPointCloudTs,
             eye_data_cwi = edata,
-            gaze_origin_global = gaze_origin_global,
-            gaze_direction_global = gaze_direction_global,
-            pcname = pcname,
-            //ViewPos = ViewPos,
-            //ViewPos2 = ViewPos2,
+            gaze_origin_global_combined = global_o_c,
+            gaze_direction_global_combined = global_d_c,
+            gaze_origin_global_left = global_o_l,
+            gaze_direction_global_left = global_d_l,
+            gaze_origin_global_right = global_o_r,
+            gaze_direction_global_right = global_d_r,
+            pcname = framename,
+            mean_l_r_o = mean_l_r_o,
+            mean_l_r_d = mean_l_r_d,
+            head_position = lastCameraMatrix.GetColumn(3),
         };
 
         Output(JsonUtility.ToJson(fData));
@@ -291,10 +306,17 @@ public class GazeTrackerXuemei : MonoBehaviour
         /// </summary>
         public Vector2 gazepoint_viewport;
 
-        public Vector3 gaze_origin_global;
-        public Vector3 gaze_direction_global;
-        public Vector3 ViewPos;
-        public Vector3 ViewPos2;
+        public Vector3 gaze_origin_global_combined;
+        public Vector3 gaze_direction_global_combined;
+        public Vector3 gaze_origin_global_left;
+        public Vector3 gaze_direction_global_left;
+        public Vector3 gaze_origin_global_right;
+        public Vector3 gaze_direction_global_right;
+        //public Vector3 ViewPos;
+        //public Vector3 ViewPos2;
+        public Vector3 mean_l_r_o;
+        public Vector3 mean_l_r_d;
+        public Vector4 head_position;
         public string pcname;
     }
     // left right combined 

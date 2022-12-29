@@ -1,3 +1,5 @@
+#define VIVE_SDK
+
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,7 +11,8 @@ using ViveSR.anipal.Eye;
 namespace GazeMetrics
 {
     
-    public class SranipalProvider : GazeDataProvider {
+    public class SranipalProvider : GazeDataProvider 
+    {
         private EyeGazeData _localEyeGazeData = new EyeGazeData();
         public EyeGazeData LocalEyeGazeData {get {return _localEyeGazeData;}} 
 

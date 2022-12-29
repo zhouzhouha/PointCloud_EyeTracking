@@ -19,4 +19,4 @@ MonoBehaviour:
   targetColor: {r: 1, g: 1, b: 1, a: 0}
   targetCenterColor: {r: 0, g: 0, b: 0, a: 0}
   experimentID: 01
-  outputFolder: D:\EyeTrackerPrecision\SampleOutput
+  outputFolder: D:\xuemei\EyeTrackerPrecision

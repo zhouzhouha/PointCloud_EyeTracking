@@ -8,6 +8,7 @@ namespace GazeMetrics{
     public class SampleData{
         public float timeStamp { get; set; }
         public bool isValid { get; set; }
+        //public float isValid { get; set; }
         public bool exclude { get; set; }
         public float targetId { get; set; }     
         public Vector3 cameraPosition { get; set; }
@@ -27,6 +28,7 @@ namespace GazeMetrics{
             StringBuilder sb = new StringBuilder();
             sb.Append(timeStamp).Append(", ");
             sb.Append(isValid?"Valid":"Invalid").Append(", ");
+            //sb.Append(isValid).Append(", ");
             sb.Append(exclude?"Excluded":"Included").Append(", ");
             sb.Append(targetId).Append(", ");
             sb.Append(Helpers.StringFromVector(cameraPosition)).Append(", ");
@@ -48,7 +50,7 @@ namespace GazeMetrics{
             StringBuilder sb = new StringBuilder();
 
             sb.Append("timeStamp").Append(", ");
-            sb.Append("Validity").Append(", ");
+            sb.Append("Bit_Mask").Append(", ");
             sb.Append("SampleInclusion").Append(", ");
             sb.Append("TargetId").Append(", ");
             sb.Append("CameraPosition.X").Append(", ").Append("CameraPosition.Y").Append(", ").Append("CameraPosition.Z").Append(", ");

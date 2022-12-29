@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - marker
+  - Room
+  - teleport
+  - UI
   layers:
   - Default
   - TransparentFX

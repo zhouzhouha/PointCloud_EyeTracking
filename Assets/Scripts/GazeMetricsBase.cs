@@ -60,15 +60,19 @@ namespace GazeMetrics
 
         public void StopCalibration()
         {
+            StopCalibration(settings.outputFolder, settings.experimentID);
+        }
+
+        public void StopCalibration(string dirpath, string expID)
+        {
             Debug.Log("Calibration should stop");
 
             IsCalibrating = false;
 
-            DataExporter.SamplesToCsv(settings.outputFolder, settings.experimentID, experimentDataList);
-            DataExporter.MetricsToCsv(settings.outputFolder, settings.experimentID, targetMetricsList);           
+            DataExporter.SamplesToCsv(dirpath, expID, experimentDataList);
+            DataExporter.MetricsToCsv(dirpath, expID, targetMetricsList);
         }
 
-        
         private void ReceiveSuccess(string topic, Dictionary<string, object> dictionary, byte[] thirdFrame)
         {
             if (OnCalibrationSucceeded != null)
