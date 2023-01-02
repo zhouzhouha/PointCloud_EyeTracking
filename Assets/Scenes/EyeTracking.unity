@@ -477,7 +477,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: CalibrationObj
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 589850344981116635, guid: 0aedab63f5927bd45b057b754040a9a3, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 0aedab63f5927bd45b057b754040a9a3, type: 3}
 --- !u!1 &391707105 stripped
 GameObject:
@@ -499,6 +500,25 @@ MonoBehaviour:
   EnableEye: 1
   EnableEyeDataCallback: 1
   EnableEyeVersion: 0
+--- !u!114 &391707107
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 391707105}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2466ae8ba7a15241ae5d18e38cd9138, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  camera: {fileID: 0}
+  marker: {fileID: 0}
+  settings: {fileID: 0}
+  targets: {fileID: 0}
+  rightHandController: {fileID: 0}
+  showPreview: 0
+  GazeRayRenderer: {fileID: 0}
 --- !u!4 &569684191 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1655350500223900520, guid: 0aedab63f5927bd45b057b754040a9a3, type: 3}
