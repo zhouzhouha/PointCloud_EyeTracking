@@ -20,7 +20,7 @@ namespace GazeMetrics
         public ProvidersList ProviderSDK;
 
         [Header("Scene References")]
-        public new Camera camera;
+        public new Camera camera;// kind of wrong??
         public Transform marker;
 
         [Header("Settings")]
@@ -80,7 +80,7 @@ namespace GazeMetrics
 
             if (marker == null || camera == null || settings == null || targets == null)
             {
-                Debug.LogWarning("Required components missing.");
+                Debug.LogWarning("Required components missing."); // 
                 enabled = false;
                 return;
             }
@@ -295,7 +295,7 @@ namespace GazeMetrics
             pointData.cameraPosition = camera.transform.position;
             pointData.localGazeOrigin = _gazeProvider.LocalEyeGazeData.Origin;
             pointData.localGazeDirection = _gazeProvider.LocalEyeGazeData.Direction;
-            pointData.worldGazeOrigin = camera.transform.localToWorldMatrix.MultiplyPoint(_gazeProvider.LocalEyeGazeData.Origin);
+            pointData.worldGazeOrigin = camera.transform.localToWorldMatrix.MultiplyPoint(_gazeProvider.LocalEyeGazeData.Origin);  // TODO, maybe rong
             pointData.worldGazeDirection = camera.transform.localToWorldMatrix.MultiplyVector(_gazeProvider.LocalEyeGazeData.Direction);
             pointData.worldGazeDistance = _gazeProvider.LocalEyeGazeData.Distance;
 

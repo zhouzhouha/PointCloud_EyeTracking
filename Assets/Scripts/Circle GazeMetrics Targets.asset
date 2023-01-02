@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Circle GazeMetrics Targets
   m_EditorClassIdentifier: 
   circles:
-  - center: {x: 0, y: 0, z: 1}
+  - center: {x: 0, y: 0, z: 1.5}
     radius: 0.3
   points: 9

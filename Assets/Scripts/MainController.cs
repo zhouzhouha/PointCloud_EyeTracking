@@ -3,18 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-//using UnityEngine.XR.Interaction.Toolkit;
-
+using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.InputSystem;
 
 public class MainController : MonoBehaviour
 {
-    //XRController RightController;
-    //public ActionBasedController rightController;
-
     private int flag = 0;  // 0: render, 1: rating, 2: calibration  init state only the render is working
     private RenderController renderController;
     private RatingController ratingController;
-    //private CalibrationController calibController;
     private CostomeCalGazeMetric cusGazeMetricController;
 
 
@@ -27,6 +23,15 @@ public class MainController : MonoBehaviour
     public string userid = "001";
     public string Session = "A";
     public string dataSaveDir = @"D:\";
+    // TODO
+    public string pc_folder_name;
+
+    [Header("RightHand Controller")]
+    //public ActionBasedController leftHandController;
+    public ActionBasedController rightHandController;
+    [Tooltip("The Input System Action that will go to the next stage")]
+    [SerializeField] InputActionProperty m_nextStageAction;
+    public InputActionProperty nextStageAction { get => m_nextStageAction;  }
 
 
     private void Awake()
@@ -37,6 +42,7 @@ public class MainController : MonoBehaviour
             Debug.LogError("dataSaveDir is empty!");
         }
 
+        dataSaveDir = Path.Combine(dataSaveDir, $"user_{userid}");
         if (!System.IO.Directory.Exists(dataSaveDir))
         {
             try
@@ -58,32 +64,23 @@ public class MainController : MonoBehaviour
     void Start()
     {
 
+
         renderController = FindObjectOfType<RenderController>();
         ratingController = FindObjectOfType<RatingController>();
-        //calibController = FindObjectOfType<CalibrationController>();
         cusGazeMetricController = FindObjectOfType<CostomeCalGazeMetric>();
 
         //// TODO
-        if (renderController == null)
+        if (renderController == null || ratingController == null || cusGazeMetricController == null)
         {
-            Debug.LogError("Need to load the point cloud!");
+            Debug.LogError("renderController == null || ratingController == null || cusGazeMetricController == null !!!");
             UnityEditor.EditorApplication.isPlaying = false;
         }
-        if (ratingController.isActiveAndEnabled)
-        {
-            //Debug.Log("Right Controller is active?" + ratingController.isActiveAndEnabled);
-            ratingController.gameObject.SetActive(false);
-        }
-        //if (calibController.isActiveAndEnabled)
-        //{
-        //    calibController.gameObject.SetActive(false);
-        //}
 
-        if (cusGazeMetricController.isActiveAndEnabled)
-        {
-            cusGazeMetricController.gameObject.SetActive(false);
-            Debug.Log("Name is " + cusGazeMetricController.name + "\n" + "Type is" + cusGazeMetricController.GetType());
-        }
+        ratingController.gameObject.SetActive(false);
+        cusGazeMetricController.gameObject.SetActive(false);
+        renderController.gameObject.SetActive(true);
+        pc_folder_name = renderController.pcdReader.dirName;
+        //pc_folder_name = renderController.pc_folder_name; // get the current point cloud name
 
     }
 
@@ -93,72 +90,59 @@ public class MainController : MonoBehaviour
 
 
 
-        //if (rightController.activateAction.action.triggered)
-        //{
-        //    Debug.Log("Pressing Trigger button.");
-
-        //}
-        //else
-        //{
-        //    Debug.Log("Need to test the trigger."); //seems succeseful!
-        //}
-
-
-        //if (rightController.activateAction.action.triggered)
-        //{
-
-        //    Debug.Log("Pressing Trigger button.");
-        //}
-
         //var aa = rightController.positionAction.action.ReadValue<Vector3>();
         //Debug.Log(string.Format("right controller value: {0}", aa));
 
+        //UnityEngine.InputSystem.Keyboard.current.onTextInput +=
+        //   inputText =>
+        //   {
+        // now: render switch to rating
+        //if (inputText.ToString() == Rating1 && flag == 0)
+#if oldcoderemovedbyJacktotestnewercode
+        bool nextWasTriggered = rightHandController.selectAction.action.triggered;
+#endif
+        bool nextWasTriggered = m_nextStageAction.action.triggered;
 
+        if (nextWasTriggered && flag == 0)
+        {
+            renderController.SetRenderActive(false);
+            //calibController.gameObject.SetActive(false);
+            cusGazeMetricController.gameObject.SetActive(false);
+            ratingController.gameObject.SetActive(true);
+            Debug.Log("Now flag is 0 and will disable playing the Point cloud!");
+            flag = 1;
+        }
+        // now: rating switch to calib
+        //else if (flag == 1 && inputText.ToString() == Calibration2)  // 
+        else if (nextWasTriggered && flag == 1)
+        {
+            if (ratingController.Finished)
+            {
+                renderController.SetRenderActive(false);
+                ratingController.gameObject.SetActive(false);
+                //calibController.gameObject.SetActive(true);
+                cusGazeMetricController.gameObject.SetActive(true);
+                Debug.Log("Now flag is 1 and doing the Rating!");
+                flag = 2;
+            }
 
-        UnityEngine.InputSystem.Keyboard.current.onTextInput +=
-           inputText =>
-           {
-               // now: render switch to rating
-               if (inputText.ToString() == Rating1 && flag == 0)
-               {
-                   renderController.SetRenderActive(false);
-                   //calibController.gameObject.SetActive(false);
-                   cusGazeMetricController.gameObject.SetActive(false);
-                   ratingController.gameObject.SetActive(true);
-                   Debug.Log("Now flag is 0 and will disable playing the Point cloud!");
-                   flag = 1;
-               }
-               // now: rating switch to calib
-               else if (flag == 1 && inputText.ToString() == Calibration2)  // 
-               {
-                   renderController.SetRenderActive(false);
-                   ratingController.gameObject.SetActive(false);
-                   //calibController.gameObject.SetActive(true);
-                   cusGazeMetricController.gameObject.SetActive(true);
-                   Debug.Log("Now flag is 1 and doing the Rating!");
-                   flag = 2;
-
-               }
-               // now: calib switch to next render
-               else if (flag == 2 && inputText.ToString() == Eyetracking3)  // switch to next render
-               {
-                   // added by zyk, 2022-12-29, before show next pct, clear the last pct
-
-                   renderController.RenderNext();
-
-                   //calibController.gameObject.SetActive(false);
-                   cusGazeMetricController.gameObject.SetActive(false);
-                   ratingController.gameObject.SetActive(false);
-                   renderController.SetRenderActive(true); // Todo: remove the frist 2 seconds data
-
-
-                   Debug.Log("Now flag is 2 and doing the Calibration!");
-                   flag = 0;
-
-               }
-
-           };
-
+        }
+        // now: calib switch to next render
+        //else if (flag == 2 && inputText.ToString() == Eyetracking3)  // switch to next render
+        else if (nextWasTriggered && flag == 2)
+        {
+            if (cusGazeMetricController.Finished_calibration)
+            {
+                // added by zyk, 2022-12-29, before show next pct, clear the last pct
+                renderController.RenderNext();
+                cusGazeMetricController.gameObject.SetActive(false);
+                ratingController.gameObject.SetActive(false);
+                renderController.SetRenderActive(true); // Todo: remove the frist 2 seconds data
+                Debug.Log("Now flag is 2 and doing the Calibration!");
+                flag = 0;
+            }
+                
+        }
 
     }
 

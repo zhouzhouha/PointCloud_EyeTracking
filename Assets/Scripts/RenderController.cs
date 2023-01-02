@@ -21,9 +21,10 @@ public class RenderController : MonoBehaviour
     private static EyeData_v2 eyeData = new EyeData_v2();
     private bool eye_callback_registered = false;
     //private static Matrix4x4 matWorldToCamera;
-    private static Matrix4x4 lastCameraMatrix;
+    //private static Matrix4x4 lastCameraMatrix;
+    private static Matrix4x4 localToWorld;
     private static string framename;
-   
+
 
     //stats
     public bool writeStats;
@@ -35,7 +36,25 @@ public class RenderController : MonoBehaviour
     public static long lasPointCloudTs;
     // for verify if the result will be correct or not
     public int LengthOfRay = 25;
-    [SerializeField] private LineRenderer GazeRayRenderer;
+    public string pc_folder_name;
+
+
+    [SerializeField]
+    private bool ShowLineForGaze = false;
+
+    private LineRenderer GazeRayRendererLeft;
+    private LineRenderer GazeRayRendererRight;
+    private LineRenderer GazeRayRendererCombined;
+
+    private static Vector3 gazeOriginWorldLeft;
+    private static Vector3 gazeDirectionWorldLeft;
+    private static Vector3 gazeOriginWorldRight;
+    private static Vector3 gazeDirectionWorldRight;
+    private static Vector3 gazeOriginWorldCombined;
+    private static Vector3 gazeDirectionWorldCombined;
+
+
+    public event Action<string> OnCurrDirPathUpdated;
 
 
 
@@ -59,7 +78,33 @@ public class RenderController : MonoBehaviour
         // init reader and renderer
         UpdateDirPath(pc_paths[currentIdx]);
 
+        GazeRayRendererLeft = InitGameObjAndLineRender("left");
+        GazeRayRendererRight = InitGameObjAndLineRender("right");
+        GazeRayRendererCombined = InitGameObjAndLineRender("combined");
+    }
 
+
+    private LineRenderer InitGameObjAndLineRender(string eye)
+    {
+        GameObject obj = new GameObject($"Gaze{eye}");
+        obj.transform.position = Vector3.zero;
+        obj.transform.rotation = Quaternion.identity;
+        obj.transform.SetParent(Camera.main.transform);
+
+        LineRenderer lr = obj.AddComponent<LineRenderer>();
+
+        lr.startWidth = 0.005f;
+        lr.endWidth = 0.005f;
+        lr.material = new Material(Shader.Find("Sprites/Default"));
+
+        return lr;
+    }
+
+
+
+    public string GetCurrentPcdPath()
+    {
+        return pc_paths[currentIdx];
     }
 
 
@@ -81,7 +126,8 @@ public class RenderController : MonoBehaviour
 
         // gaze data file path
         var mainControl = FindObjectOfType<MainController>();
-        string dataSavePath = Path.Combine(mainControl.dataSaveDir, "EyeData");
+        //string dataSavePath = Path.Combine(mainControl.dataSaveDir, "EyeData");
+        string dataSavePath = mainControl.dataSaveDir;
         if (!System.IO.Directory.Exists(dataSavePath))
             Directory.CreateDirectory(dataSavePath);
 
@@ -106,9 +152,10 @@ public class RenderController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-       
+
         // TODO: Record the data only when point cloud is playback.
-        lastCameraMatrix = Camera.main.cameraToWorldMatrix; //  model matrix
+        //lastCameraMatrix = Camera.main.cameraToWorldMatrix; //  model matrix
+        localToWorld = Camera.main.transform.localToWorldMatrix;
         framename = pcdRender.metadataMostRecentReception.filename;
 
         if (SRanipal_Eye_Framework.Status != SRanipal_Eye_Framework.FrameworkStatus.WORKING &&
@@ -131,30 +178,57 @@ public class RenderController : MonoBehaviour
             eye_callback_registered = false;
         }
 
-        Vector3 GazeOriginCombinedLocal, GazeDirectionCombinedLocal;
-        if (eye_callback_registered)
+
+        //Vector3 GazeOriginCombinedLocal, GazeDirectionCombinedLocal;
+        //if (eye_callback_registered)
+        //{
+        //    if (SRanipal_Eye_v2.GetGazeRay(GazeIndex.COMBINE, out GazeOriginCombinedLocal, out GazeDirectionCombinedLocal, eyeData)) { }
+        //    else if (SRanipal_Eye_v2.GetGazeRay(GazeIndex.LEFT, out GazeOriginCombinedLocal, out GazeDirectionCombinedLocal, eyeData)) { }
+        //    else if (SRanipal_Eye_v2.GetGazeRay(GazeIndex.RIGHT, out GazeOriginCombinedLocal, out GazeDirectionCombinedLocal, eyeData)) { }
+        //    else return;
+        //}
+        //else
+        //{
+        //    if (SRanipal_Eye_v2.GetGazeRay(GazeIndex.COMBINE, out GazeOriginCombinedLocal, out GazeDirectionCombinedLocal)) { }
+        //    else if (SRanipal_Eye_v2.GetGazeRay(GazeIndex.LEFT, out GazeOriginCombinedLocal, out GazeDirectionCombinedLocal)) { }
+        //    else if (SRanipal_Eye_v2.GetGazeRay(GazeIndex.RIGHT, out GazeOriginCombinedLocal, out GazeDirectionCombinedLocal)) { }
+        //    else return;
+        //}
+
+        //Vector3 GazeDirectionCombined = Camera.main.transform.TransformDirection(GazeDirectionCombinedLocal);
+        //GazeRayRenderer.SetPosition(0, Camera.main.transform.position - Camera.main.transform.up * 0.05f); //010*0.05
+        //GazeRayRenderer.SetPosition(1, Camera.main.transform.position + GazeDirectionCombined * LengthOfRay);
+
+
+        if (ShowLineForGaze)
         {
-            if (SRanipal_Eye_v2.GetGazeRay(GazeIndex.COMBINE, out GazeOriginCombinedLocal, out GazeDirectionCombinedLocal, eyeData))
-            {
-            }
-            else if (SRanipal_Eye_v2.GetGazeRay(GazeIndex.LEFT, out GazeOriginCombinedLocal, out GazeDirectionCombinedLocal, eyeData))
-            { 
-            }
-            else if (SRanipal_Eye_v2.GetGazeRay(GazeIndex.RIGHT, out GazeOriginCombinedLocal, out GazeDirectionCombinedLocal, eyeData)) 
-            { 
-            }
-            else return;
+            GazeRayRendererLeft.SetPosition(0, gazeOriginWorldLeft); //010*0.05
+            GazeRayRendererLeft.SetPosition(1, gazeOriginWorldLeft + gazeDirectionWorldLeft * LengthOfRay);
+            GazeRayRendererLeft.startColor = Color.red;
+            GazeRayRendererLeft.endColor = Color.red;
+            GazeRayRendererLeft.gameObject.transform.position = gazeOriginWorldLeft;
+
+            GazeRayRendererRight.SetPosition(0, gazeOriginWorldRight); //010*0.05
+            GazeRayRendererRight.SetPosition(1, gazeOriginWorldRight + gazeDirectionWorldRight * LengthOfRay);
+            GazeRayRendererRight.startColor = Color.green;
+            GazeRayRendererRight.endColor = Color.green;
+            GazeRayRendererRight.gameObject.transform.position = gazeOriginWorldRight;
+
+            GazeRayRendererCombined.SetPosition(0, gazeOriginWorldCombined); //010*0.05
+            GazeRayRendererCombined.SetPosition(1, gazeOriginWorldCombined + gazeDirectionWorldCombined * LengthOfRay);
+            GazeRayRendererCombined.startColor = Color.blue;
+            GazeRayRendererCombined.endColor = Color.blue;
+            GazeRayRendererCombined.gameObject.transform.position = gazeOriginWorldCombined;
         }
         else
         {
-            if (SRanipal_Eye_v2.GetGazeRay(GazeIndex.COMBINE, out GazeOriginCombinedLocal, out GazeDirectionCombinedLocal)) { }
-            else if (SRanipal_Eye_v2.GetGazeRay(GazeIndex.LEFT, out GazeOriginCombinedLocal, out GazeDirectionCombinedLocal)) { }
-            else if (SRanipal_Eye_v2.GetGazeRay(GazeIndex.RIGHT, out GazeOriginCombinedLocal, out GazeDirectionCombinedLocal)) { }
-            else return;
+            GazeRayRendererLeft.gameObject.SetActive(false);
+            GazeRayRendererRight.gameObject.SetActive(false);
+            GazeRayRendererCombined.gameObject.SetActive(false);
         }
-        Vector3 GazeDirectionCombined = Camera.main.transform.TransformDirection(GazeDirectionCombinedLocal);
-        GazeRayRenderer.SetPosition(0, Camera.main.transform.position - Camera.main.transform.up * 0.05f); //010*0.05
-        GazeRayRenderer.SetPosition(1, Camera.main.transform.position + GazeDirectionCombined * LengthOfRay);
+
+
+
     }
 
 
@@ -194,16 +268,29 @@ public class RenderController : MonoBehaviour
 
         pcdReader.dirName = dirpath;
         // TODO: release the old pct reader, renderer
-
+        string pc_folder_name = dirpath;
         this.gameObject.SetActive(activeState);
+
+
+        if (OnCurrDirPathUpdated != null)
+        {
+            OnCurrDirPathUpdated(dirpath);
+        }
     }
+
 
     public void OnDestroy()
     {
-        SRanipal_Eye_v2.WrapperUnRegisterEyeDataCallback(Marshal.GetFunctionPointerForDelegate((SRanipal_Eye_v2.CallbackBasic)EyeCallback));
+        //SRanipal_Eye_v2.WrapperUnRegisterEyeDataCallback(Marshal.GetFunctionPointerForDelegate((SRanipal_Eye_v2.CallbackBasic)EyeCallback));
+        ReleaseEyeTracker();
+
+        // added by xuemei.zyk, 2022-12-30
+        // as there is always an error: writeline in func Output(string s) after jstatsStream closed
+        // so, set the initialized to false here
+        initialized = false;
 
         //TODO
-        if (jstatsStream.BaseStream.Length < 1)
+        if (jstatsStream.BaseStream.Length <= 1)
         {
             jstatsStream.WriteLine("{} ]");
         }
@@ -217,35 +304,50 @@ public class RenderController : MonoBehaviour
     }
 
 
-    private void Release()
+    private void ReleaseEyeTracker()
     {
-        if (eye_callback_registered == true)
+        if (eye_callback_registered)
         {
             SRanipal_Eye_v2.WrapperUnRegisterEyeDataCallback(Marshal.GetFunctionPointerForDelegate((SRanipal_Eye_v2.CallbackBasic)EyeCallback));
             eye_callback_registered = false;
         }
     }
+
     private static void EyeCallback(ref EyeData_v2 eye_data)
     {
         eyeData = eye_data;
         object ed = eyeData;
         EyeData_v2_cwi edata = (EyeData_v2_cwi)CastTo(ref ed, typeof(EyeData_v2_cwi));
 
-        Vector3 global_o_c = lastCameraMatrix.MultiplyPoint(Vector3.Scale(edata.verbose_data.combined.eye_data.gaze_origin_mm * 0.001f, new Vector3(-1, 1, -1)));
-        Vector3 global_d_c = lastCameraMatrix.MultiplyVector(Vector3.Scale(edata.verbose_data.combined.eye_data.gaze_direction_normalized, new Vector3(-1, 1, -1)));
+        // TODO, different with the sample of SRanipal, don't know why
+        Vector3 global_o_c = localToWorld.MultiplyPoint(Vector3.Scale(edata.verbose_data.combined.eye_data.gaze_origin_mm * 0.001f, new Vector3(-1, 1, 1)));
+        Vector3 global_d_c = localToWorld.MultiplyVector(Vector3.Scale(edata.verbose_data.combined.eye_data.gaze_direction_normalized, new Vector3(-1, 1, 1)));
 
-        Vector3 global_o_l = lastCameraMatrix.MultiplyPoint(Vector3.Scale(edata.verbose_data.left.gaze_origin_mm * 0.001f, new Vector3(-1, 1, -1)));
-        Vector3 global_d_l = lastCameraMatrix.MultiplyVector(Vector3.Scale(edata.verbose_data.left.gaze_direction_normalized, new Vector3(-1, 1, -1)));
+        Vector3 global_o_l = localToWorld.MultiplyPoint(Vector3.Scale(edata.verbose_data.left.gaze_origin_mm * 0.001f, new Vector3(-1, 1, 1)));
+        Vector3 global_d_l = localToWorld.MultiplyVector(Vector3.Scale(edata.verbose_data.left.gaze_direction_normalized, new Vector3(-1, 1, 1)));
 
-        Vector3 global_o_r = lastCameraMatrix.MultiplyPoint(Vector3.Scale(edata.verbose_data.right.gaze_origin_mm * 0.001f, new Vector3(-1, 1, -1)));
-        Vector3 global_d_r = lastCameraMatrix.MultiplyVector(Vector3.Scale(edata.verbose_data.right.gaze_direction_normalized, new Vector3(-1, 1, -1)));
+        Vector3 global_o_r = localToWorld.MultiplyPoint(Vector3.Scale(edata.verbose_data.right.gaze_origin_mm * 0.001f, new Vector3(-1, 1, 1)));
+        Vector3 global_d_r = localToWorld.MultiplyVector(Vector3.Scale(edata.verbose_data.right.gaze_direction_normalized, new Vector3(-1, 1, 1)));
+
+        //Camera.main.transform.TransformPoint()
+        //Camera.main.transform.TransformDirection
+
+        gazeOriginWorldLeft = global_o_l;
+        gazeDirectionWorldLeft = global_d_l;
+
+        gazeOriginWorldRight = global_o_r;
+        gazeDirectionWorldRight = global_d_r;
+
+        gazeOriginWorldCombined = global_o_c;
+        gazeDirectionWorldCombined = global_d_c;
+
 
         // this should be viewing and projection matrix
         //or if I can save this matrix, then I can do post processing But I feel directly get these information here is better
         // Matrix4x4 VP_matrix = Camera.main.previousViewProjectionMatrix * Camera.main.worldToCameraMatrix;
         FullData_cwi fData = new FullData_cwi()
         {
-            camera_matrix = lastCameraMatrix,
+            camera_matrix = localToWorld,
             pointcloudTs = lasPointCloudTs,
             eye_data_cwi = edata,
             gaze_origin_global_combined = global_o_c,
@@ -266,6 +368,9 @@ public class RenderController : MonoBehaviour
     public static void Output(string s)
     {
         if (!initialized) return;
+        {
+
+        }
         lock (lockObj)
         {
             seq++;
@@ -333,18 +438,6 @@ public class RenderController : MonoBehaviour
         public Vector4 head_position;
         public string pcname;
     }
-    // left right combined 
-
-
-
-    //LeftVisual = new GameObject("Left Gaze Ray Visual");
-
-
-    //public void RenderGazeRays(LeftGazeRays)
-    //{
-    //    LineRenderer lr = 
-
-    //}
 
 
 
