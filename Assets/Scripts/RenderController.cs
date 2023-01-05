@@ -20,8 +20,6 @@ public class RenderController : MonoBehaviour
     private int currentIdx = 0;
     private static EyeData_v2 eyeData = new EyeData_v2();
     private bool eye_callback_registered = false;
-    //private static Matrix4x4 matWorldToCamera;
-    //private static Matrix4x4 lastCameraMatrix;
     private static Matrix4x4 localToWorld;
     private static string framename;
 
@@ -40,7 +38,7 @@ public class RenderController : MonoBehaviour
 
 
     [SerializeField]
-    private bool ShowLineForGaze = false;
+    private bool ShowLineForGaze = true;
 
     private LineRenderer GazeRayRendererLeft;
     private LineRenderer GazeRayRendererRight;
@@ -77,7 +75,7 @@ public class RenderController : MonoBehaviour
         }
         // init reader and renderer
         UpdateDirPath(pc_paths[currentIdx]);
-
+        // visualize the ray
         GazeRayRendererLeft = InitGameObjAndLineRender("left");
         GazeRayRendererRight = InitGameObjAndLineRender("right");
         GazeRayRendererCombined = InitGameObjAndLineRender("combined");
@@ -126,13 +124,12 @@ public class RenderController : MonoBehaviour
 
         // gaze data file path
         var mainControl = FindObjectOfType<MainController>();
-        //string dataSavePath = Path.Combine(mainControl.dataSaveDir, "EyeData");
         string dataSavePath = mainControl.dataSaveDir;
         if (!System.IO.Directory.Exists(dataSavePath))
             Directory.CreateDirectory(dataSavePath);
 
         string filename = string.Format("{0}_{1}_{2}{3}", DateTime.Now.ToString("yyyyMMdd-HHmm"), mainControl.userid, mainControl.Session, ".json");
-        Debug.Log("The saved file name is " + filename);
+        Debug.Log("Gaze Data file name is: " + filename);
         try
         {
             jstatsStream = new System.IO.StreamWriter(Path.Combine(dataSavePath, filename)); // filename
@@ -153,7 +150,7 @@ public class RenderController : MonoBehaviour
     void Update()
     {
 
-        // TODO: Record the data only when point cloud is playback.
+        // TODO: Record the data only when point cloud is playback??
         //lastCameraMatrix = Camera.main.cameraToWorldMatrix; //  model matrix
         localToWorld = Camera.main.transform.localToWorldMatrix;
         framename = pcdRender.metadataMostRecentReception.filename;
@@ -179,40 +176,23 @@ public class RenderController : MonoBehaviour
         }
 
 
-        //Vector3 GazeOriginCombinedLocal, GazeDirectionCombinedLocal;
-        //if (eye_callback_registered)
-        //{
-        //    if (SRanipal_Eye_v2.GetGazeRay(GazeIndex.COMBINE, out GazeOriginCombinedLocal, out GazeDirectionCombinedLocal, eyeData)) { }
-        //    else if (SRanipal_Eye_v2.GetGazeRay(GazeIndex.LEFT, out GazeOriginCombinedLocal, out GazeDirectionCombinedLocal, eyeData)) { }
-        //    else if (SRanipal_Eye_v2.GetGazeRay(GazeIndex.RIGHT, out GazeOriginCombinedLocal, out GazeDirectionCombinedLocal, eyeData)) { }
-        //    else return;
-        //}
-        //else
-        //{
-        //    if (SRanipal_Eye_v2.GetGazeRay(GazeIndex.COMBINE, out GazeOriginCombinedLocal, out GazeDirectionCombinedLocal)) { }
-        //    else if (SRanipal_Eye_v2.GetGazeRay(GazeIndex.LEFT, out GazeOriginCombinedLocal, out GazeDirectionCombinedLocal)) { }
-        //    else if (SRanipal_Eye_v2.GetGazeRay(GazeIndex.RIGHT, out GazeOriginCombinedLocal, out GazeDirectionCombinedLocal)) { }
-        //    else return;
-        //}
-
-        //Vector3 GazeDirectionCombined = Camera.main.transform.TransformDirection(GazeDirectionCombinedLocal);
-        //GazeRayRenderer.SetPosition(0, Camera.main.transform.position - Camera.main.transform.up * 0.05f); //010*0.05
-        //GazeRayRenderer.SetPosition(1, Camera.main.transform.position + GazeDirectionCombined * LengthOfRay);
-
-
         if (ShowLineForGaze)
         {
-            GazeRayRendererLeft.SetPosition(0, gazeOriginWorldLeft); //010*0.05
-            GazeRayRendererLeft.SetPosition(1, gazeOriginWorldLeft + gazeDirectionWorldLeft * LengthOfRay);
-            GazeRayRendererLeft.startColor = Color.red;
-            GazeRayRendererLeft.endColor = Color.red;
-            GazeRayRendererLeft.gameObject.transform.position = gazeOriginWorldLeft;
+            //gazeOriginWorldLeft = gaze_origin_global_combined;
+            //GazeRayRendererLeft.gameObject.SetActive(true);
+            //GazeRayRendererRight.gameObject.SetActive(true);
+            //GazeRayRendererCombined.gameObject.SetActive(true);
+            //GazeRayRendererLeft.SetPosition(0, gazeOriginWorldLeft); //010*0.05
+            //GazeRayRendererLeft.SetPosition(1, gazeOriginWorldLeft + gazeDirectionWorldLeft * LengthOfRay);
+            //GazeRayRendererLeft.startColor = Color.red;
+            //GazeRayRendererLeft.endColor = Color.red;
+            //GazeRayRendererLeft.gameObject.transform.position = gazeOriginWorldLeft;
 
-            GazeRayRendererRight.SetPosition(0, gazeOriginWorldRight); //010*0.05
-            GazeRayRendererRight.SetPosition(1, gazeOriginWorldRight + gazeDirectionWorldRight * LengthOfRay);
-            GazeRayRendererRight.startColor = Color.green;
-            GazeRayRendererRight.endColor = Color.green;
-            GazeRayRendererRight.gameObject.transform.position = gazeOriginWorldRight;
+            //GazeRayRendererRight.SetPosition(0, gazeOriginWorldRight); //010*0.05
+            //GazeRayRendererRight.SetPosition(1, gazeOriginWorldRight + gazeDirectionWorldRight * LengthOfRay);
+            //GazeRayRendererRight.startColor = Color.green;
+            //GazeRayRendererRight.endColor = Color.green;
+            //GazeRayRendererRight.gameObject.transform.position = gazeOriginWorldRight;
 
             GazeRayRendererCombined.SetPosition(0, gazeOriginWorldCombined); //010*0.05
             GazeRayRendererCombined.SetPosition(1, gazeOriginWorldCombined + gazeDirectionWorldCombined * LengthOfRay);
@@ -226,8 +206,6 @@ public class RenderController : MonoBehaviour
             GazeRayRendererRight.gameObject.SetActive(false);
             GazeRayRendererCombined.gameObject.SetActive(false);
         }
-
-
 
     }
 
@@ -281,7 +259,6 @@ public class RenderController : MonoBehaviour
 
     public void OnDestroy()
     {
-        //SRanipal_Eye_v2.WrapperUnRegisterEyeDataCallback(Marshal.GetFunctionPointerForDelegate((SRanipal_Eye_v2.CallbackBasic)EyeCallback));
         ReleaseEyeTracker();
 
         // added by xuemei.zyk, 2022-12-30
@@ -329,18 +306,8 @@ public class RenderController : MonoBehaviour
         Vector3 global_o_r = localToWorld.MultiplyPoint(Vector3.Scale(edata.verbose_data.right.gaze_origin_mm * 0.001f, new Vector3(-1, 1, 1)));
         Vector3 global_d_r = localToWorld.MultiplyVector(Vector3.Scale(edata.verbose_data.right.gaze_direction_normalized, new Vector3(-1, 1, 1)));
 
-        //Camera.main.transform.TransformPoint()
-        //Camera.main.transform.TransformDirection
-
-        gazeOriginWorldLeft = global_o_l;
-        gazeDirectionWorldLeft = global_d_l;
-
-        gazeOriginWorldRight = global_o_r;
-        gazeDirectionWorldRight = global_d_r;
-
         gazeOriginWorldCombined = global_o_c;
         gazeDirectionWorldCombined = global_d_c;
-
 
         // this should be viewing and projection matrix
         //or if I can save this matrix, then I can do post processing But I feel directly get these information here is better
@@ -352,10 +319,6 @@ public class RenderController : MonoBehaviour
             eye_data_cwi = edata,
             gaze_origin_global_combined = global_o_c,
             gaze_direction_global_combined = global_d_c,
-            gaze_origin_global_left = global_o_l,
-            gaze_direction_global_left = global_d_l,
-            gaze_origin_global_right = global_o_r,
-            gaze_direction_global_right = global_d_r,
             pcname = framename,
         };
         Output(JsonUtility.ToJson(fData));
@@ -368,9 +331,6 @@ public class RenderController : MonoBehaviour
     public static void Output(string s)
     {
         if (!initialized) return;
-        {
-
-        }
         lock (lockObj)
         {
             seq++;
@@ -403,7 +363,7 @@ public class RenderController : MonoBehaviour
     }
 
     /// <summary>
-    /// Structure containing all informationa bout the eye_tracking_data
+    /// Structure containing all informationa about the eye_tracking_data
     /// </summary>
     [Serializable]
     public struct FullData_cwi
@@ -424,18 +384,8 @@ public class RenderController : MonoBehaviour
         /// gaze point on the viewport
         /// </summary>
         public Vector2 gazepoint_viewport;
-
         public Vector3 gaze_origin_global_combined;
         public Vector3 gaze_direction_global_combined;
-        public Vector3 gaze_origin_global_left;
-        public Vector3 gaze_direction_global_left;
-        public Vector3 gaze_origin_global_right;
-        public Vector3 gaze_direction_global_right;
-        //public Vector3 ViewPos;
-        //public Vector3 ViewPos2;
-        public Vector3 mean_l_r_o;
-        public Vector3 mean_l_r_d;
-        public Vector4 head_position;
         public string pcname;
     }
 

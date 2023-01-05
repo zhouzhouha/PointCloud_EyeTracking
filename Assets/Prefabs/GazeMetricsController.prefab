@@ -644,7 +644,7 @@ GameObject:
   - component: {fileID: 1655350499104168187}
   - component: {fileID: 1655350499104168185}
   - component: {fileID: 1655350499104168184}
-  - component: {fileID: 589850344981116635}
+  - component: {fileID: 8741340095639571550}
   m_Layer: 0
   m_Name: GazeMetricsController
   m_TagString: Untagged
@@ -700,7 +700,7 @@ MonoBehaviour:
   sdPrecisionText: {fileID: 1655350499164451611}
   sampleText: {fileID: 1655350498680799863}
   validSamplesText: {fileID: 1655350500103848649}
---- !u!114 &589850344981116635
+--- !u!114 &8741340095639571550
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -713,9 +713,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   camera: {fileID: 0}
-  marker: {fileID: 0}
-  settings: {fileID: 0}
-  targets: {fileID: 0}
+  marker: {fileID: 1655350499986899469}
+  settings: {fileID: 11400000, guid: 2d6ed493e3d5c034a91d6a7f4eaad4a8, type: 2}
+  targets: {fileID: 11400000, guid: 6da5e0a4cbfecd9408025583f651effa, type: 2}
   rightHandController: {fileID: 0}
   showPreview: 0
   GazeRayRenderer: {fileID: 0}

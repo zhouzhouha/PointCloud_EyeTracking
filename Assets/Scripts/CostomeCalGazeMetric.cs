@@ -30,7 +30,7 @@ namespace GazeMetrics
         public bool IsCalibrating { get { return calibration.IsCalibrating; } }
 
 
-        [SerializeField] private LineRenderer GazeRayRenderer;
+        //[SerializeField] private LineRenderer GazeRayRenderer;
         private static EyeData_v2 _gazeData = new EyeData_v2();
         private bool eye_callback_registered = false;
 
@@ -173,7 +173,8 @@ namespace GazeMetrics
 
 
             ////how to make sure the user must do all the calibration then stop???
-            if (mainControl.nextStageAction.action.triggered)
+            ///mainControl.nextStageAction.action.triggered
+            if (rightHandController.selectAction.action.triggered)
             {
                 ToggleCalibration();
             }

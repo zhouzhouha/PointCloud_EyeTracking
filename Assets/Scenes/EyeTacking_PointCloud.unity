@@ -233,7 +233,7 @@ Transform:
   m_Children:
   - {fileID: 795944983}
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &78215703
 MonoBehaviour:
@@ -247,11 +247,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 145e4dcaa0e8ef74ea8f5847544d7440, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  anotherPanel: {fileID: 0}
-  slider: {fileID: 0}
-  state: 0
-  score: 0
-  strength: 0.15
 --- !u!114 &78215704
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -290,7 +285,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff8f725615919754e9f812909bb7b587, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rightController: {fileID: 0}
+  mainSlider: {fileID: 1381105795}
+  newFillRect: {fileID: 0}
+  rightHandController: {fileID: 0}
+  textForSliderValue: {fileID: 0}
 --- !u!1 &175844628
 GameObject:
   m_ObjectHideFlags: 0
@@ -321,7 +319,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &175844632
 MonoBehaviour:
@@ -335,12 +333,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8bbe99944e9152b4ba726c15e2ee4072, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Rating1: z
-  Calibration2: x
-  Eyetracking3: m
   userid: 001
   Session: A
   dataSaveDir: D:\xuemei\RawData
+  pc_folder_name: 
+  rightHandController: {fileID: 0}
+  m_nextStageAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: 
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: 
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
 --- !u!1 &376633491
 GameObject:
   m_ObjectHideFlags: 0
@@ -566,7 +575,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &619965060
 GameObject:
@@ -1249,7 +1258,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff8f725615919754e9f812909bb7b587, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rightController: {fileID: 0}
+  mainSlider: {fileID: 0}
+  newFillRect: {fileID: 0}
+  rightHandController: {fileID: 0}
+  textForSliderValue: {fileID: 0}
 --- !u!114 &795944989
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1298,10 +1310,20 @@ MonoBehaviour:
   m_RepeatDelay: 0.5
   m_RepeatRate: 0.1
   m_TrackedDeviceDragThresholdMultiplier: 1.4
+  m_ActiveInputMode: 0
   m_MaxTrackedDeviceRaycastDistance: 1000
   m_EnableXRInput: 1
   m_EnableMouseInput: 0
   m_EnableTouchInput: 0
+  m_PointAction: {fileID: 0}
+  m_LeftClickAction: {fileID: 0}
+  m_MiddleClickAction: {fileID: 0}
+  m_RightClickAction: {fileID: 0}
+  m_ScrollWheelAction: {fileID: 0}
+  m_NavigateAction: {fileID: 0}
+  m_SubmitAction: {fileID: 0}
+  m_CancelAction: {fileID: 0}
+  m_EnableBuiltinActionsAsFallback: 1
   m_EnableGamepadInput: 0
   m_EnableJoystickInput: 0
   m_HorizontalAxis: Horizontal
@@ -1377,6 +1399,7 @@ MonoBehaviour:
     m_Bits: 4294967295
   m_InteractionLayers:
     m_Bits: 1
+  m_DistanceCalculationMode: 1
   m_SelectMode: 1
   m_CustomReticle: {fileID: 0}
   m_FirstHoverEntered:
@@ -1409,6 +1432,8 @@ MonoBehaviour:
   m_Deactivated:
     m_PersistentCalls:
       m_Calls: []
+  m_StartingHoverFilters: []
+  m_StartingSelectFilters: []
   m_OnFirstHoverEntered:
     m_PersistentCalls:
       m_Calls: []
@@ -1438,7 +1463,10 @@ MonoBehaviour:
       m_Calls: []
   m_TeleportationProvider: {fileID: 0}
   m_MatchOrientation: 0
+  m_MatchDirectionalInput: 0
   m_TeleportTrigger: 0
+  m_FilterSelectionByHitNormal: 0
+  m_UpNormalToleranceDegrees: 30
   m_Teleporting:
     m_PersistentCalls:
       m_Calls: []
@@ -1547,7 +1575,8 @@ MonoBehaviour:
   writeStats: 0
   interval: 0
   LengthOfRay: 25
-  GazeRayRenderer: {fileID: 832305470}
+  pc_folder_name: 
+  ShowLineForGaze: 0
 --- !u!4 &832305469
 Transform:
   m_ObjectHideFlags: 0
@@ -1562,7 +1591,7 @@ Transform:
   m_Children:
   - {fileID: 1278432131}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!120 &832305470
 LineRenderer:
@@ -1911,57 +1940,6 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
---- !u!1 &1256751894
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1256751896}
-  - component: {fileID: 1256751895}
-  m_Layer: 0
-  m_Name: Calibration
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!114 &1256751895
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1256751894}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8958b3a90cdf2eb41803d556dd3ad4e6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  baseAngularError: 0
-  casualCameraRotation: 0
-  scaleFactorA: 0
-  scaleFactorB: 0
-  head: 0
-  greenRing: {fileID: 0}
-  is3D: 0
---- !u!4 &1256751896
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1256751894}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.18922198, y: 1.6648898, z: -1.0796736}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1278432130 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2942035106827000202, guid: c3b1c94af23e743a08547f27f81df210, type: 3}
@@ -2069,10 +2047,20 @@ MonoBehaviour:
   m_RepeatDelay: 0.5
   m_RepeatRate: 0.1
   m_TrackedDeviceDragThresholdMultiplier: 1.4
+  m_ActiveInputMode: 0
   m_MaxTrackedDeviceRaycastDistance: 1000
   m_EnableXRInput: 1
   m_EnableMouseInput: 1
   m_EnableTouchInput: 1
+  m_PointAction: {fileID: 0}
+  m_LeftClickAction: {fileID: 0}
+  m_MiddleClickAction: {fileID: 0}
+  m_RightClickAction: {fileID: 0}
+  m_ScrollWheelAction: {fileID: 0}
+  m_NavigateAction: {fileID: 0}
+  m_SubmitAction: {fileID: 0}
+  m_CancelAction: {fileID: 0}
+  m_EnableBuiltinActionsAsFallback: 1
   m_EnableGamepadInput: 1
   m_EnableJoystickInput: 1
   m_HorizontalAxis: Horizontal
@@ -2194,7 +2182,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1655350499104168187, guid: 0aedab63f5927bd45b057b754040a9a3, type: 3}
       propertyPath: m_RootOrder
-      value: 4
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1655350499104168187, guid: 0aedab63f5927bd45b057b754040a9a3, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2312,8 +2300,7 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 341.75
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 589850344981116635, guid: 0aedab63f5927bd45b057b754040a9a3, type: 3}
+    m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0aedab63f5927bd45b057b754040a9a3, type: 3}
 --- !u!1 &1553562178 stripped
 GameObject:
@@ -2435,10 +2422,8 @@ MonoBehaviour:
   marker: {fileID: 1684264601}
   settings: {fileID: 11400000, guid: 2d6ed493e3d5c034a91d6a7f4eaad4a8, type: 2}
   targets: {fileID: 11400000, guid: 6da5e0a4cbfecd9408025583f651effa, type: 2}
+  rightHandController: {fileID: 0}
   showPreview: 0
-  userid: 001
-  Session: A
-  GazeRayRenderer: {fileID: 1553562183}
 --- !u!114 &1553562186
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2607,7 +2592,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4860176230215406221, guid: 5553f6bccdc163740a900449b94a4183, type: 3}
       propertyPath: m_RootOrder
-      value: 10
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 4860176230215406221, guid: 5553f6bccdc163740a900449b94a4183, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2815,7 +2800,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 9
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1933882644 stripped
 Transform:

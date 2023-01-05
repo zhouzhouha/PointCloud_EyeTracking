@@ -1,16 +1,16 @@
-using System.Collections.Generic;
-using UnityEngine;
-using System.IO;
-using System;
-using System.Text;
-using Newtonsoft.Json;
-using System.Threading;
 using Cwipc;
+using Newtonsoft.Json;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
+using UnityEngine;
+using UnityEngine.InputSystem;
 
-
-
-
-public class EyeDataProcess : MonoBehaviour
+public class DynamicEyeDataProcess : MonoBehaviour
 {
 
     //file reader
@@ -38,20 +38,25 @@ public class EyeDataProcess : MonoBehaviour
     public float theta = 1.5f;
 
     public bool obtainOnlyResult = false;
-    private List<Vector3> Valid_gaze_orgin = new List<Vector3>();
-    private List<Vector3> Valid_gaze_direction = new List<Vector3>();
+    private Vector3 Valid_gaze_orgin = new Vector3();
+    private Vector3 Valid_gaze_direction = new Vector3();
 
     public PrerecordedPointCloudReader pctReader;
     public PointCloudRenderer pcdRenderer;
 
     public int LengthOfRay = 25;
     [SerializeField] private LineRenderer GazeRayRenderer;
+    public Gradient gradient = new Gradient();
+
+
     bool isProcessing = false;
 
     Vector3 Valid_gaze_origin_world;
     Vector3 Valid_gaze_direction_world;
-    string PC_path = "D:/xuemei/PointCloud_EyeTracking/Resource/loot_vox10_1000_good.ply";
-    string EyeDatapath = "D:/xuemei/PointCloud_EyeTracking/Resource/eyetrackingdata-VRSMALL-20221129-1230.json";
+    // H4C1R5
+    string ply_Folder_path = @"E:\PLY\H4_C1_R5\";
+    string dump_Folder_path = @"E:\DUMP\H4_C1_R5\";
+    string GazeDataDir = @"D:\xuemei\RawData\user_001\20230104-2236_001_A.json";
     int curIdx = 0;
 
 
@@ -59,59 +64,41 @@ public class EyeDataProcess : MonoBehaviour
     public GameObject sphere;
 
 
-
-
-    void Awake()
+    void Start()
     {
-        // get the directory of PC_path
-        //directoryName = Path.GetDirectoryName(PC_path);
-        //// create temp directory
-        //string tempFolder = "TempPCFolder"; 
-        //string tempDirectory = Path.Combine(directoryName, tempFolder);
-        //Debug.Log(tempDirectory);
-        //Directory.CreateDirectory(tempDirectory);
-        //// copy the file [PC_path] to temp directory
-        //string temFile = tempDirectory + "/loot_vox10_1000.cwipcdump";
-        //FileUtil.CopyFileOrDirectory(PC_path, temFile);
-        // set temp directory to Reader.cs
-        //pctReader.dirName = tempDirectory; //D:\xuemei\PointCloud_EyeTracking\Resource\TempPCFolder
+        
         Debug.Log("Test start!");
-        LoadPointCloud(PC_path);
-        Debug.Log("Load Sucessful!");
-        ReadEyeData(EyeDatapath);
-        Debug.Log("Load EyeData Sucessful!");
-        Debug.Log("Total Gaze Data:" + Valid_gaze_orgin.Count);
-        Debug.Log(Valid_gaze_orgin[curIdx]);
-        Debug.Log(Valid_gaze_direction[curIdx]);
-
-
-        //if (sphere == null)
-        //    Debug.LogError("sphere is null!");
-
+        GazeRayRenderer = GetComponent<LineRenderer>();
+        GazeRayRenderer.material = new Material(Shader.Find("Sprites/Default"));
+        // a simple 2 color gradient with a fixed alpha of 1.0f.
+        float alpha = 1.0f;
+        gradient.SetKeys(
+            new GradientColorKey[] { new GradientColorKey(Color.green, 0.0f), new GradientColorKey(Color.red, 1.0f) },
+            new GradientAlphaKey[] { new GradientAlphaKey(alpha, 0.0f), new GradientAlphaKey(alpha, 1.0f) }
+            );
     }
 
 
     void Update()
     {
-
-        //Debug.Log("Processing Gaze Data:" + curIdx);
-        ShowGaze(Valid_gaze_orgin, Valid_gaze_direction, curIdx);
-        if (Input.GetKeyDown(KeyCode.Space))
+        ShowGaze(Valid_gaze_origin_world, Valid_gaze_direction_world);
+        if (Keyboard.current.spaceKey.isPressed)
         {
             // Spacebar was pressed 
             Debug.Log("Spacebar was pressed !");
             ProcessAsync();
-        }
+        } 
 
     }
 
 
-    void ShowGaze(List<Vector3> Valid_gaze_orgin, List<Vector3> Valid_gaze_direction, int curIdx)
+    void ShowGaze(Vector3 Valid_gaze_orgin, Vector3 Valid_gaze_direction)
     {
-        //Debug.Log(Valid_gaze_orgin[curIdx]);
-        //Debug.Log(Valid_gaze_direction[curIdx]);
-        GazeRayRenderer.SetPosition(0, Valid_gaze_orgin[curIdx]); //
-        GazeRayRenderer.SetPosition(1, Valid_gaze_orgin[curIdx] + Valid_gaze_direction[curIdx] * LengthOfRay);
+        GazeRayRenderer.SetPosition(0, Valid_gaze_orgin); 
+        GazeRayRenderer.SetPosition(1, Valid_gaze_orgin + Valid_gaze_direction * LengthOfRay);
+        GazeRayRenderer.startColor = Color.red;
+        GazeRayRenderer.colorGradient = gradient;
+        GazeRayRenderer.endColor = Color.green;
     }
 
 
@@ -133,29 +120,7 @@ public class EyeDataProcess : MonoBehaviour
 
     void ProcessFunc()
     {
-        // get current point cloud and set to xuemeiPointCloud;
-        //cwipc.pointcloud xuemeiPointCloud = pctReader.GetCurrentPointCloud();
-        //cwipc.pointcloud pct = xuemeiPointCloud;
-        //var currentPointCloud_ = pct.get_points();
-        //currentPointCloud = currentPointCloud_[]; //(Point color buffersize)
-
-        //currentPointCloud = xuemeiPointCloud.get_points();
-
-        for (curIdx = 0; curIdx < Valid_gaze_orgin.Count; curIdx++)
-        {
-            Vector3 Valid_gaze_origin_world = Valid_gaze_orgin[curIdx];
-            Vector3 Valid_gaze_direction_world = Valid_gaze_direction[curIdx];
-
-            // current pct and rendered pct ,mirror x , z   
-            //if mirror z
-            //        currentPointCloud
-
-
-            RegisterPoints(Valid_gaze_direction_world, Valid_gaze_origin_world, currentPointCloud, 0.5f, 0.05f);
-            Debug.Log("Now is GazeData index:" + curIdx);
-        }
-        WritePointCloud(currentPointCloud, currentPointGazeImportance);
-        Debug.Log("has already wirte the point cloud!");
+        ReadEyeData(GazeDataDir);
         isProcessing = false;
     }
 
@@ -358,38 +323,63 @@ public class EyeDataProcess : MonoBehaviour
         return data;
     }
 
-
+    /// <param name="EyeDatapath"></param>
     void ReadEyeData(string EyeDatapath)
     {
-        string dataJsonString = File.ReadAllText(EyeDatapath, Encoding.UTF8);
+        string dataJsonString = File.ReadAllText(EyeDatapath);
         List<FullData_cwi> fullDataList = JsonConvert.DeserializeObject<List<FullData_cwi>>(dataJsonString);
-        foreach (var item in fullDataList)
+        HashSet<string> uniqueFilenames = new HashSet<string>();
+        for (int i = 0; i < fullDataList.Count; i++) //
         {
-            CameraMatrix cm = item.camera_matrix;
-            Matrix4x4 matrix = new Matrix4x4();
-            //Marshal.
-            matrix.m00 = cm.e00;
-            matrix.m10 = cm.e10;
-            matrix.m20 = cm.e20;
-            matrix.m30 = cm.e30;
-            matrix.m01 = cm.e01;
-            matrix.m11 = cm.e11;
-            matrix.m21 = cm.e21;
-            matrix.m31 = cm.e31;
-            matrix.m02 = cm.e02;
-            matrix.m12 = cm.e12;
-            matrix.m22 = cm.e22;
-            matrix.m03 = cm.e03;
-            matrix.m13 = cm.e13;
-            matrix.m23 = cm.e23;
-            matrix.m33 = cm.e33;
-            Vector3 point = new Vector3(item.eye_data_cwi.verbose_data.combined.eye_data.gaze_origin_mm.x * (-1), item.eye_data_cwi.verbose_data.combined.eye_data.gaze_origin_mm.y, item.eye_data_cwi.verbose_data.combined.eye_data.gaze_origin_mm.z * (-1));
-            Vector3 direction = new Vector3(item.eye_data_cwi.verbose_data.combined.eye_data.gaze_direction_normalized.x * (-1), item.eye_data_cwi.verbose_data.combined.eye_data.gaze_direction_normalized.y, item.eye_data_cwi.verbose_data.combined.eye_data.gaze_direction_normalized.z * (-1));
-            Vector3 origin_world = matrix.MultiplyPoint(point / 1000); //matrix.transpose
-            Vector3 direction_world = matrix.MultiplyVector(direction); //matrix.transpose
-            Valid_gaze_orgin.Add(origin_world);
-            Valid_gaze_direction.Add(direction_world);
+            if (fullDataList[i].eye_data_cwi.verbose_data.combined.eye_data.eye_data_validata_bit_mask == 3) // valid
+            {
+                string dump_filename = fullDataList[i].pcname;
+                if (dump_filename == "" || dump_filename.Contains("H2_C1_R4") || dump_filename.Contains("H1_C1_R5"))
+                { continue; }
+                uniqueFilenames.Add(dump_filename);
+                string ply_filename = Path.GetFileName(Path.ChangeExtension(dump_filename, "ply")); // from dump to ply
+                string ply_full_filename = Path.Combine(ply_Folder_path, ply_filename); // load the point cloud frame by file name ply format
+
+            }
+                
         }
+        print("There are " + uniqueFilenames.Count + " unique filenames");
+        foreach (var fname in uniqueFilenames)
+        {
+            string pattern = "DUMP";
+            string replace = "PLY";
+            string only_folder_filename = Path.GetFileName(Path.GetDirectoryName(Path.ChangeExtension(fname, "txt")));
+            string only_ply_filename = Path.GetFileName(Path.ChangeExtension(fname, "txt"));
+            string HeatMapSaveName = Path.Combine(only_folder_filename, only_ply_filename);
+            string ply_filename = Path.ChangeExtension(fname, "ply"); // from dump to ply
+            string ply_full_filename = Regex.Replace(ply_filename, pattern, replace); // load the point cloud frame by file name ply format
+            Debug.Log("This is ply filename: " + ply_full_filename);
+            // load corresponding point cloud data
+            LoadPointCloud(ply_full_filename); //right hand coordinate system
+            Debug.Log("Load Sucessful!");
+            for (int i = 0; i < fullDataList.Count; i++) //
+            {
+                print(" the" + (i + 1) + "gazedata");
+                string dump_filename = fullDataList[i].pcname;
+                if (dump_filename == "")
+                { continue; }                
+                if (dump_filename == fname)
+                {    
+                    if (fullDataList[i].eye_data_cwi.verbose_data.combined.eye_data.eye_data_validata_bit_mask == 3) // valid
+                    {
+                        Vector3 origin_world = fullDataList[i].gaze_origin_global_combined;
+                        Vector3 direction_world = fullDataList[i].gaze_direction_global_combined;
+                        Valid_gaze_origin_world = origin_world;
+                        Valid_gaze_direction_world = direction_world;
+                        int TimeStamp = fullDataList[i].eye_data_cwi.timestamp;
+                        RegisterPoints(direction_world, origin_world, currentPointCloud, 1.0f, 0.05f);
+                    }
+                }
+            }
+            WritePointCloud(currentPointCloud, currentPointGazeImportance, only_folder_filename, HeatMapSaveName);
+            Debug.Log("has already wirte the point cloud!");
+        }
+        
     }
     void RegisterPoints(Vector3 gazeRay, Vector3 camPos, List<Vector3> currentPointCloud, float currentAngleThreshold, float acceptingDepthRange)
     {
@@ -415,7 +405,7 @@ public class EyeDataProcess : MonoBehaviour
             for (int i = 0; i < currentPointCloud.Count; i++)
             {
                 Vector3 point = currentPointCloud[i];
-                point.z *= -1; // mirror z to mirror the point cloud
+                point.z *= -1; // to unity left hand 
                 Vector3 dir = point - camPos;
                 float angleInDegree = Mathf.Abs(Vector3.Angle(gazeRay, dir));
 
@@ -480,13 +470,6 @@ public class EyeDataProcess : MonoBehaviour
                         currentPointGazeImportance[j] += Mathf.Exp(-Mathf.Pow(pRadius, 2f) / (2f * var)) / Mathf.Sqrt(2f * Mathf.PI * var);
                     }
 
-
-                    // for current point,  creat a sphere obj to render
-                    //var aa = Instantiate(sphere);
-
-
-
-
                 }
             }
 
@@ -494,16 +477,16 @@ public class EyeDataProcess : MonoBehaviour
     }
 
 
-
-
-
-
-    void WritePointCloud(List<Vector3> currentPointCloud, List<float> currentPointGazeImportance)
+    void WritePointCloud(List<Vector3> currentPointCloud, List<float> currentPointGazeImportance, string savefoldername, string savefilename)
     {
         if (!obtainOnlyResult)
         {
-            string oPath = "D:/xuemei/PointCloud_EyeTracking/Resource/loot_leftfoot_Mirrorz_VisualAngle5_1Depth_v1.txt";
-            string path = oPath;
+            string HeatMapDir = @"D:\xuemei\HeatMap\";
+            string SaveFolderName = Path.Combine(HeatMapDir, savefoldername);
+            string SaveHeatmapDir = Path.Combine(HeatMapDir, savefilename);
+            string path = SaveHeatmapDir;
+            if (!System.IO.Directory.Exists(SaveFolderName))
+                Directory.CreateDirectory(SaveFolderName);
             File.WriteAllText(path, string.Empty);
             sw = new StreamWriter(path, true);
             sw.WriteLine("PosX PosY PosZ GazeCount");
@@ -518,14 +501,26 @@ public class EyeDataProcess : MonoBehaviour
         }
     }
 
+    
+
+    [Serializable]
     public class FullData_cwi
     {
         public CameraMatrix camera_matrix { get; set; }
         public int pointcloudTs { get; set; }
         public EyeDataCwi eye_data_cwi { get; set; }
+        public Vector3 gaze_origin_global_combined { get; set; }
+        public Vector3 gaze_direction_global_combined { get; set; }
+        public string pcname { get; set; }
     }
 
-    [Serializable]
+    public class ValidGazeforHeatmap
+    {
+        
+        public Vector3 gaze_origin_global_combined { get; set; }
+        public Vector3 gaze_direction_global_combined { get; set; }
+        public int timestamp { get; set; }
+    }
     public class CameraMatrix
     {
         public float e00 { get; set; }
@@ -632,30 +627,4 @@ public class EyeDataProcess : MonoBehaviour
         public Combined combined { get; set; }
     }
 }
-/// <summary>
-/// 
-/// </summary>
-//public PointCloudPoint[] get_points()
-//{
-//    int npoint = count();
-//    PointCloudPoint[] rv = new PointCloudPoint[npoint];
-//    unsafe
-//    {
-//        int nbytes = get_uncompressed_size();
-//        var pointBuffer = new Unity.Collections.NativeArray<point>(npoint, Unity.Collections.Allocator.Temp);
-//        System.IntPtr pointBufferPointer = (System.IntPtr)Unity.Collections.LowLevel.Unsafe.NativeArrayUnsafeUtility.GetUnsafePtr(pointBuffer);
-//        int ret = copy_uncompressed(pointBufferPointer, nbytes);
-//        if (ret * 16 != nbytes || ret != npoint)
-//        {
-//            throw new Exception("cwipc.pointcloud.get_points unexpected point count");
-//        }
-//        for (int i = 0; i < npoint; i++)
-//        {
-//            rv[i].point = new Vector3(pointBuffer[i].x, pointBuffer[i].y, pointBuffer[i].z);
-//            rv[i].color = new Color(((float)pointBuffer[i].r) / 256.0f, ((float)pointBuffer[i].g) / 256.0f, ((float)pointBuffer[i].b) / 256.0f);
-//            rv[i].tile = pointBuffer[i].tile;
-//        }
-//    }
 
-//    return rv;
-//}

@@ -14,10 +14,10 @@ public class MainController : MonoBehaviour
     private CostomeCalGazeMetric cusGazeMetricController;
 
 
-    [Header("Switch status code")]
-    public string Rating1;
-    public string Calibration2;
-    public string Eyetracking3;
+    //[Header("Switch status code")]
+    //public string Rating1;
+    //public string Calibration2;
+    //public string Eyetracking3;
 
     [Header("Experiment setting")]
     public string userid = "001";
@@ -27,7 +27,6 @@ public class MainController : MonoBehaviour
     public string pc_folder_name;
 
     [Header("RightHand Controller")]
-    //public ActionBasedController leftHandController;
     public ActionBasedController rightHandController;
     [Tooltip("The Input System Action that will go to the next stage")]
     [SerializeField] InputActionProperty m_nextStageAction;
@@ -80,7 +79,6 @@ public class MainController : MonoBehaviour
         cusGazeMetricController.gameObject.SetActive(false);
         renderController.gameObject.SetActive(true);
         pc_folder_name = renderController.pcdReader.dirName;
-        //pc_folder_name = renderController.pc_folder_name; // get the current point cloud name
 
     }
 
@@ -88,16 +86,6 @@ public class MainController : MonoBehaviour
     void Update()
     {
 
-
-
-        //var aa = rightController.positionAction.action.ReadValue<Vector3>();
-        //Debug.Log(string.Format("right controller value: {0}", aa));
-
-        //UnityEngine.InputSystem.Keyboard.current.onTextInput +=
-        //   inputText =>
-        //   {
-        // now: render switch to rating
-        //if (inputText.ToString() == Rating1 && flag == 0)
 #if oldcoderemovedbyJacktotestnewercode
         bool nextWasTriggered = rightHandController.selectAction.action.triggered;
 #endif
@@ -106,21 +94,18 @@ public class MainController : MonoBehaviour
         if (nextWasTriggered && flag == 0)
         {
             renderController.SetRenderActive(false);
-            //calibController.gameObject.SetActive(false);
             cusGazeMetricController.gameObject.SetActive(false);
             ratingController.gameObject.SetActive(true);
             Debug.Log("Now flag is 0 and will disable playing the Point cloud!");
             flag = 1;
         }
         // now: rating switch to calib
-        //else if (flag == 1 && inputText.ToString() == Calibration2)  // 
         else if (nextWasTriggered && flag == 1)
         {
             if (ratingController.Finished)
             {
                 renderController.SetRenderActive(false);
-                ratingController.gameObject.SetActive(false);
-                //calibController.gameObject.SetActive(true);
+                ratingController.gameObject.SetActive(false); 
                 cusGazeMetricController.gameObject.SetActive(true);
                 Debug.Log("Now flag is 1 and doing the Rating!");
                 flag = 2;
@@ -128,12 +113,12 @@ public class MainController : MonoBehaviour
 
         }
         // now: calib switch to next render
-        //else if (flag == 2 && inputText.ToString() == Eyetracking3)  // switch to next render
+        // switch to next render
         else if (nextWasTriggered && flag == 2)
         {
             if (cusGazeMetricController.Finished_calibration)
             {
-                // added by zyk, 2022-12-29, before show next pct, clear the last pct
+                // added by xuemei.zyk, 2022-12-29, before show next pct, clear the last pct
                 renderController.RenderNext();
                 cusGazeMetricController.gameObject.SetActive(false);
                 ratingController.gameObject.SetActive(false);

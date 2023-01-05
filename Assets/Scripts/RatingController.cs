@@ -6,6 +6,7 @@ using UnityEngine.UI; // Required when Using UI elements.
 using UnityEngine.XR.Interaction.Toolkit;
 using System.IO;
 using System.Text;
+using Unity.VisualScripting;
 
 public class RatingController : MonoBehaviour
 {
@@ -19,12 +20,12 @@ public class RatingController : MonoBehaviour
 
     public TextMeshPro textForSliderValue;
 
-    private Text textonSliderValue;
-    private Text Excellent;
-    private Text Good;
-    private Text Fair;
-    private Text Poor;
-    private Text Bad;
+    //private Text textonSliderValue;
+    //private Text Excellent;
+    //private Text Good;
+    //private Text Fair;
+    //private Text Poor;
+    //private Text Bad;
 
     private MainController mainControl;
     private RenderController renderController;
@@ -32,7 +33,8 @@ public class RatingController : MonoBehaviour
     private string experimentID;
     private string savePath;
     private string pc_id;
-
+    public GameObject OkButton; 
+   
 
 
     private bool isFinised = false;
@@ -56,6 +58,7 @@ public class RatingController : MonoBehaviour
         {
             Debug.LogError("Can not get a valid object of RenderController!");
         }
+        OkButton = GameObject.Find("OK");
 
     }
 
@@ -64,13 +67,15 @@ public class RatingController : MonoBehaviour
     private void OnEnable()
     {
         Finished = false;
+        OkButton.SetActive(true);
+        ResetSlider();
     }
 
 
-    private void ReserSlider()
+    private void ResetSlider()
     {
         mainSlider.fillRect.gameObject.SetActive(false);
-        mainSlider.fillRect = newFillRect;
+        //mainSlider.fillRect = newFillRect;
         mainSlider.direction = Slider.Direction.LeftToRight;
         mainSlider.minValue = 1.0f;
         mainSlider.maxValue = 5.0f;
@@ -82,19 +87,10 @@ public class RatingController : MonoBehaviour
     //Deactivates the old FillRect and assigns a new one.
     void Start()
     {
-        ReserSlider();
-
-
-        //Excellent.text = "Excellent";
-        //Good.text = "Good";
-        //Fair.text = "Fair";
-        //Poor.text = "Poor";
-        //Bad.text = "Bad";
-
+        
         dataOutputDir = mainControl.dataSaveDir;
         experimentID = string.Format("{0}_{1}{2}", mainControl.userid, mainControl.Session, ".csv");
         savePath = Path.Combine(dataOutputDir, experimentID);
-
 
         string pcdpath = renderControl.GetCurrentPcdPath();
         OnCurrDirPathUpdated(pcdpath);
@@ -120,10 +116,6 @@ public class RatingController : MonoBehaviour
 
     public void ShowSliderValue()
     {
-        //mainSlider.onValueChanged.AddListener((v) =>
-        //{
-        //    textonSliderValue.text = v.ToString("0.00");
-        //});
         string sliderMessage = "Your quality score is:" + mainSlider.value.ToString("0.00");
         textForSliderValue.text = sliderMessage;
     }
@@ -132,7 +124,7 @@ public class RatingController : MonoBehaviour
 
     public void FinishedRating()
     {
-        Debug.Log("on click()");
+        Debug.Log("On Click()");
 
         if (!this.Finished)
         {
@@ -141,6 +133,7 @@ public class RatingController : MonoBehaviour
             string allInfo = "pc_id: " + pc_id + " " + "MOS: " + rating_score.ToString() + "\n";
             RecordRatingScore(allInfo, savePath);
             Finished = true;
+            OkButton.SetActive(false);
         }
 
     }
