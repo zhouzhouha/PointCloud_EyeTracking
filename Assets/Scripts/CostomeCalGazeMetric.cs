@@ -174,10 +174,13 @@ namespace GazeMetrics
 
             ////how to make sure the user must do all the calibration then stop???
             ///mainControl.nextStageAction.action.triggered
-            if (rightHandController.selectAction.action.triggered)
+            if (rightHandController.activateAction.action.triggered)
             {
                 ToggleCalibration();
             }
+
+
+
 
         }
 
@@ -353,7 +356,6 @@ namespace GazeMetrics
         {
             SampleData pointData = new SampleData();
 
-
             pointData.timeStamp = _gazeData.timestamp;
             Vector3 tmp1; Vector3 tmp2;
             pointData.isValid = SRanipal_Eye.GetGazeRay(GazeIndex.COMBINE, out tmp1, out tmp2);
@@ -368,6 +370,20 @@ namespace GazeMetrics
             pointData.worldGazeOrigin = camera.transform.localToWorldMatrix.MultiplyPoint(Vector3.Scale(_gazeData.verbose_data.combined.eye_data.gaze_origin_mm * 0.001f, new Vector3(-1, 1, 1)));
             pointData.worldGazeDirection = camera.transform.localToWorldMatrix.MultiplyVector(Vector3.Scale(_gazeData.verbose_data.combined.eye_data.gaze_direction_normalized, new Vector3(-1, 1, 1)));
             pointData.worldGazeDistance = 1.5f;  //_gazeData.verbose_data.combined.convergence_distance_mm;
+
+
+            // added by xuemei.zyk, 2023-01-10
+            float ignoredAngleThreshold = 7.5f;
+            //direction of marker relative to eye position in world cordinates
+            Vector3 markerDirection = pointData.worldMarkerPosition - pointData.worldGazeOrigin;
+            //The accuracy of this single sample measured by offset angle
+            float offsetAngle = Vector3.Angle(markerDirection, pointData.worldGazeDirection);
+
+            if (offsetAngle > ignoredAngleThreshold)
+            {
+                pointData.exclude = false;
+            }
+
 
             //Calculate sample metrics
             MetricsCalculator.CalculateSampleMetrics(ref pointData, _previousGazeDirection);

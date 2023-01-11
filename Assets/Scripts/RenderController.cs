@@ -36,6 +36,8 @@ public class RenderController : MonoBehaviour
     public int LengthOfRay = 25;
     public string pc_folder_name;
 
+    private MainController mainControl;
+
 
     [SerializeField]
     private bool ShowLineForGaze = true;
@@ -73,6 +75,12 @@ public class RenderController : MonoBehaviour
                 UnityEditor.EditorApplication.isPlaying = false;
             }
         }
+
+        mainControl = FindObjectOfType<MainController>();
+        if (mainControl == null)
+        {
+            Debug.LogError("Can not get a valid object of MainController!");
+        }
         // init reader and renderer
         UpdateDirPath(pc_paths[currentIdx]);
         // visualize the ray
@@ -81,6 +89,16 @@ public class RenderController : MonoBehaviour
         GazeRayRendererCombined = InitGameObjAndLineRender("combined");
     }
 
+    private void OnEnable()
+    {
+        RegisterEyeTracker();
+    }
+
+
+    private void OnDisable()
+    {
+        ReleaseEyeTracker();
+    }
 
     private LineRenderer InitGameObjAndLineRender(string eye)
     {
@@ -162,17 +180,13 @@ public class RenderController : MonoBehaviour
             return;
         }
 
-        if (SRanipal_Eye_Framework.Instance.EnableEyeDataCallback == true && eye_callback_registered == false)
+        if (SRanipal_Eye_Framework.Instance.EnableEyeDataCallback == true)
         {
-            SRanipal_Eye_v2.WrapperRegisterEyeDataCallback(Marshal.GetFunctionPointerForDelegate((SRanipal_Eye_v2.CallbackBasic)EyeCallback));
-            eye_callback_registered = true;
-
-
+            RegisterEyeTracker();
         }
-        else if (SRanipal_Eye_Framework.Instance.EnableEyeDataCallback == false && eye_callback_registered == true)
+        else if (SRanipal_Eye_Framework.Instance.EnableEyeDataCallback == false)
         {
-            SRanipal_Eye_v2.WrapperUnRegisterEyeDataCallback(Marshal.GetFunctionPointerForDelegate((SRanipal_Eye_v2.CallbackBasic)EyeCallback));
-            eye_callback_registered = false;
+            ReleaseEyeTracker();
         }
 
 
@@ -246,7 +260,7 @@ public class RenderController : MonoBehaviour
 
         pcdReader.dirName = dirpath;
         // TODO: release the old pct reader, renderer
-        string pc_folder_name = dirpath;
+        pc_folder_name = dirpath;
         this.gameObject.SetActive(activeState);
 
 
@@ -254,6 +268,7 @@ public class RenderController : MonoBehaviour
         {
             OnCurrDirPathUpdated(dirpath);
         }
+        mainControl.NewSequenceHasStarted();
     }
 
 
@@ -280,6 +295,15 @@ public class RenderController : MonoBehaviour
         jstatsStream.Close();
     }
 
+    private void RegisterEyeTracker()
+    {
+        if (!eye_callback_registered)
+        {
+            SRanipal_Eye_v2.WrapperRegisterEyeDataCallback(Marshal.GetFunctionPointerForDelegate((SRanipal_Eye_v2.CallbackBasic)EyeCallback));
+            eye_callback_registered = true;
+        }
+
+    }
 
     private void ReleaseEyeTracker()
     {
@@ -289,6 +313,10 @@ public class RenderController : MonoBehaviour
             eye_callback_registered = false;
         }
     }
+
+
+    static int ActivteFlag = 0;
+    static int InactiveFlag = 0;
 
     private static void EyeCallback(ref EyeData_v2 eye_data)
     {
@@ -300,11 +328,11 @@ public class RenderController : MonoBehaviour
         Vector3 global_o_c = localToWorld.MultiplyPoint(Vector3.Scale(edata.verbose_data.combined.eye_data.gaze_origin_mm * 0.001f, new Vector3(-1, 1, 1)));
         Vector3 global_d_c = localToWorld.MultiplyVector(Vector3.Scale(edata.verbose_data.combined.eye_data.gaze_direction_normalized, new Vector3(-1, 1, 1)));
 
-        Vector3 global_o_l = localToWorld.MultiplyPoint(Vector3.Scale(edata.verbose_data.left.gaze_origin_mm * 0.001f, new Vector3(-1, 1, 1)));
-        Vector3 global_d_l = localToWorld.MultiplyVector(Vector3.Scale(edata.verbose_data.left.gaze_direction_normalized, new Vector3(-1, 1, 1)));
+        //Vector3 global_o_l = localToWorld.MultiplyPoint(Vector3.Scale(edata.verbose_data.left.gaze_origin_mm * 0.001f, new Vector3(-1, 1, 1)));
+        //Vector3 global_d_l = localToWorld.MultiplyVector(Vector3.Scale(edata.verbose_data.left.gaze_direction_normalized, new Vector3(-1, 1, 1)));
 
-        Vector3 global_o_r = localToWorld.MultiplyPoint(Vector3.Scale(edata.verbose_data.right.gaze_origin_mm * 0.001f, new Vector3(-1, 1, 1)));
-        Vector3 global_d_r = localToWorld.MultiplyVector(Vector3.Scale(edata.verbose_data.right.gaze_direction_normalized, new Vector3(-1, 1, 1)));
+        //Vector3 global_o_r = localToWorld.MultiplyPoint(Vector3.Scale(edata.verbose_data.right.gaze_origin_mm * 0.001f, new Vector3(-1, 1, 1)));
+        //Vector3 global_d_r = localToWorld.MultiplyVector(Vector3.Scale(edata.verbose_data.right.gaze_direction_normalized, new Vector3(-1, 1, 1)));
 
         gazeOriginWorldCombined = global_o_c;
         gazeDirectionWorldCombined = global_d_c;

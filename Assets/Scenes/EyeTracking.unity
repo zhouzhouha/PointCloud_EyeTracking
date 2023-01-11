@@ -370,7 +370,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 269824615}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 3}
+  m_LocalPosition: {x: 0, y: 0, z: 2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -494,6 +494,10 @@ PrefabInstance:
       propertyPath: marker
       value: 
       objectReference: {fileID: 1767162743}
+    - target: {fileID: 8741340095639571550, guid: 0aedab63f5927bd45b057b754040a9a3, type: 3}
+      propertyPath: targets
+      value: 
+      objectReference: {fileID: 11400000, guid: 6da5e0a4cbfecd9408025583f651effa, type: 2}
     - target: {fileID: 8741340095639571550, guid: 0aedab63f5927bd45b057b754040a9a3, type: 3}
       propertyPath: rightHandController
       value: 
@@ -999,15 +1003,28 @@ MonoBehaviour:
   pcdReader: {fileID: 2942035107735954229}
   pcdRender: {fileID: 205970590}
   pc_paths:
-  - E:\DUMP\H4_C1_R5
-  - E:\DUMP\H5_C1_R5
-  - E:\DUMP\H4_C1_R5
-  - E:\DUMP\H5_C1_R5
+  - E:\DUMP_NEW\H3_C1_R1
+  - C:\TestDisk\H1_C0_R0
+  - C:\TestDisk\H1_C1_R3
+  - E:\DUMP_NEW\H3_C0_R0
+  - C:\TestDisk\H1_C0_R0
+  - E:\DUMP_NEW\H1_C1_R5
+  - E:\DUMP_NEW\H2_C2_R2
+  - E:\DUMP_NEW\H1_C2_R4
+  - E:\DUMP_NEW\H3_C2_R3
+  - E:\DUMP_NEW\H2_C1_R5
+  - E:\DUMP_NEW\H3_C2_R1
+  - E:\DUMP_NEW\H2_C2_R5
+  - E:\DUMP_NEW\H1_C2_R1
+  - E:\DUMP_NEW\H2_C2_R1
+  - E:\DUMP_NEW\H3_C2_R4
+  - E:\DUMP_NEW\H2_C0_R0
+  - E:\DUMP_NEW\H3_C1_R5
   writeStats: 0
   interval: 0
   LengthOfRay: 25
   pc_folder_name: 
-  ShowLineForGaze: 1
+  ShowLineForGaze: 0
 --- !u!1 &1063913125
 GameObject:
   m_ObjectHideFlags: 0
@@ -1687,7 +1704,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8263205083537251264, guid: a52bad54fd5fe3e4ba4a3b7c783370d3, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -9.1
+      value: -11
       objectReference: {fileID: 0}
     - target: {fileID: 8263205083537251265, guid: a52bad54fd5fe3e4ba4a3b7c783370d3, type: 3}
       propertyPath: m_text
@@ -1695,11 +1712,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8263205083537251265, guid: a52bad54fd5fe3e4ba4a3b7c783370d3, type: 3}
       propertyPath: m_fontSize
-      value: 30
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 8263205083537251265, guid: a52bad54fd5fe3e4ba4a3b7c783370d3, type: 3}
       propertyPath: m_margin.x
-      value: -447.61917
+      value: -401.36703
       objectReference: {fileID: 0}
     - target: {fileID: 8263205083537251265, guid: a52bad54fd5fe3e4ba4a3b7c783370d3, type: 3}
       propertyPath: m_margin.y
@@ -1707,7 +1724,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8263205083537251265, guid: a52bad54fd5fe3e4ba4a3b7c783370d3, type: 3}
       propertyPath: m_margin.z
-      value: -254.80652
+      value: -238.02185
       objectReference: {fileID: 0}
     - target: {fileID: 8263205083537251265, guid: a52bad54fd5fe3e4ba4a3b7c783370d3, type: 3}
       propertyPath: m_fontSizeMax
@@ -1719,7 +1736,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8263205083537251265, guid: a52bad54fd5fe3e4ba4a3b7c783370d3, type: 3}
       propertyPath: m_fontSizeBase
-      value: 30
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 8263205083537251265, guid: a52bad54fd5fe3e4ba4a3b7c783370d3, type: 3}
       propertyPath: m_enableAutoSizing
@@ -2013,7 +2030,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4770916539198233020, guid: c3b1c94af23e743a08547f27f81df210, type: 3}
       propertyPath: pcMirrorZ
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4770916539198233020, guid: c3b1c94af23e743a08547f27f81df210, type: 3}
       propertyPath: pointcloudSource
@@ -2042,7 +2059,7 @@ MonoBehaviour:
   voxelSize: 0
   frameRate: 30
   _dirName: 
-  defaultPointSize: 0.005
+  defaultPointSize: 0.0015
 --- !u!1001 &4860176229106756649
 PrefabInstance:
   m_ObjectHideFlags: 0

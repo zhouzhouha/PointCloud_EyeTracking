@@ -5,6 +5,8 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.InputSystem;
+using ViveSR.anipal.Eye;
+using System;
 
 public class MainController : MonoBehaviour
 {
@@ -30,6 +32,8 @@ public class MainController : MonoBehaviour
     public ActionBasedController rightHandController;
     [Tooltip("The Input System Action that will go to the next stage")]
     [SerializeField] InputActionProperty m_nextStageAction;
+    private float ignoreNextUntil;
+
     public InputActionProperty nextStageAction { get => m_nextStageAction;  }
 
 
@@ -63,7 +67,6 @@ public class MainController : MonoBehaviour
     void Start()
     {
 
-
         renderController = FindObjectOfType<RenderController>();
         ratingController = FindObjectOfType<RatingController>();
         cusGazeMetricController = FindObjectOfType<CostomeCalGazeMetric>();
@@ -90,6 +93,7 @@ public class MainController : MonoBehaviour
         bool nextWasTriggered = rightHandController.selectAction.action.triggered;
 #endif
         bool nextWasTriggered = m_nextStageAction.action.triggered;
+        if (Time.realtimeSinceStartup < ignoreNextUntil) nextWasTriggered = false;
 
         if (nextWasTriggered && flag == 0)
         {
@@ -113,11 +117,29 @@ public class MainController : MonoBehaviour
 
         }
         // now: calib switch to next render
-        // switch to next render
+        // before switch to next render, need do the re-calibration
         else if (nextWasTriggered && flag == 2)
         {
             if (cusGazeMetricController.Finished_calibration)
             {
+                // added by xuemei.zykk, 2022-1-5, need to do the calibration again
+                bool calibrationsucssful = SRanipal_Eye_v2.LaunchEyeCalibration();
+                while (!calibrationsucssful)
+                {
+                    Debug.LogError("LaunchEyeCalibration failed!");
+                    calibrationsucssful = SRanipal_Eye_v2.LaunchEyeCalibration();
+                }
+
+                Debug.Log("LaunchEyeCalibration Successuful!");
+
+                //bool calibrationsucssful = SRanipal_Eye_v2.LaunchEyeCalibration();
+                //if (!calibrationsucssful)
+                //{
+                //    Debug.LogError ("Clibration States:" + calibrationsucssful);
+                //    SRanipal_Eye_v2.LaunchEyeCalibration();
+                //}
+                // if the calibration is failed, re do the calibration again?? how to get the state of the calibration??
+                
                 // added by xuemei.zyk, 2022-12-29, before show next pct, clear the last pct
                 renderController.RenderNext();
                 cusGazeMetricController.gameObject.SetActive(false);
@@ -128,7 +150,12 @@ public class MainController : MonoBehaviour
             }
                 
         }
+        
 
     }
 
+    internal void NewSequenceHasStarted()
+    {
+        ignoreNextUntil = Time.realtimeSinceStartup + 10;
+    }
 }

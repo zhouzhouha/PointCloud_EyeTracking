@@ -79,7 +79,7 @@ public class RatingController : MonoBehaviour
         mainSlider.direction = Slider.Direction.LeftToRight;
         mainSlider.minValue = 1.0f;
         mainSlider.maxValue = 5.0f;
-        mainSlider.wholeNumbers = false; // set the slider's value to accept not only the int value.
+        mainSlider.wholeNumbers = true; // set the slider's value to accept not only the int value.
         mainSlider.value = 0;
     }
 

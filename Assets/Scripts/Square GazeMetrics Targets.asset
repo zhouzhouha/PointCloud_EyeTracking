@@ -15,8 +15,4 @@ MonoBehaviour:
   squares:
   - center: {x: 0, y: 0, z: 0}
     width: 0
-  - center: {x: 0, y: 0, z: 0}
-    width: 0
-  - center: {x: 0, y: 0, z: 0}
-    width: 0
   points: 9
