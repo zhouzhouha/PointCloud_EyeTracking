@@ -176,7 +176,12 @@ namespace GazeMetrics
             ///mainControl.nextStageAction.action.triggered
             if (rightHandController.activateAction.action.triggered)
             {
-                ToggleCalibration();
+
+                if (!marker.gameObject.activeInHierarchy)
+                {
+                    ToggleCalibration();
+                }
+
             }
 
 
@@ -186,7 +191,6 @@ namespace GazeMetrics
 
 
 
-        int counter = 0;
         void FixedUpdate()
         {
             if (calibration.IsCalibrating)
@@ -381,7 +385,7 @@ namespace GazeMetrics
 
             if (offsetAngle > ignoredAngleThreshold)
             {
-                pointData.exclude = false;
+                pointData.exclude = true;
             }
 
 

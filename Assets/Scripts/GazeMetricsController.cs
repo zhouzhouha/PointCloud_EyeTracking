@@ -140,7 +140,6 @@ namespace GazeMetrics
         }
         
         
-        int counter = 0;
         void FixedUpdate()
         {
             if (calibration.IsCalibrating)

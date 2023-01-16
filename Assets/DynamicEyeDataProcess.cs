@@ -39,8 +39,6 @@ public class DynamicEyeDataProcess : MonoBehaviour
     public float theta = 1.5f;
 
     public bool obtainOnlyResult = false;
-    private Vector3 Valid_gaze_orgin = new Vector3();
-    private Vector3 Valid_gaze_direction = new Vector3();
 
     public PrerecordedPointCloudReader pctReader;
     public PointCloudRenderer pcdRenderer;
@@ -60,7 +58,6 @@ public class DynamicEyeDataProcess : MonoBehaviour
     string GazeDataDir = @"D:\xuemei\RawData\user_001_shishir\20230106-1641_001_A.json";
     string userid;
     string session;
-    int curIdx = 0;
 
 
 

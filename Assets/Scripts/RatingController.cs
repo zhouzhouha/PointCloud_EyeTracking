@@ -89,7 +89,7 @@ public class RatingController : MonoBehaviour
     {
         
         dataOutputDir = mainControl.dataSaveDir;
-        experimentID = string.Format("{0}_{1}{2}", mainControl.userid, mainControl.Session, ".csv");
+        experimentID = string.Format("{0}_{1}{2}", mainControl.userid, mainControl.Session, ".txt");
         savePath = Path.Combine(dataOutputDir, experimentID);
 
         string pcdpath = renderControl.GetCurrentPcdPath();
@@ -142,6 +142,26 @@ public class RatingController : MonoBehaviour
 
 
     public void RecordRatingScore(string strs, string path)
+    {
+        Debug.Log("Here is the rating score of the User" + mainSlider.value.ToString());
+
+        if (!File.Exists(path))
+        {
+            FileStream fs = File.Create(path);
+            fs.Dispose();
+        }
+
+        using (StreamWriter stream = new StreamWriter(path, true))
+        {
+            stream.WriteLine(strs);
+        }
+
+        //here is where the user should go to the calibration scene, remember to disable the rating
+        //create seperate function to call (do everything by funcation then call them!) save the socre
+
+    }
+
+    public void SaveRatingScoreButton(string strs, string path)
     {
         Debug.Log("Here is the rating score of the User" + mainSlider.value.ToString());
 

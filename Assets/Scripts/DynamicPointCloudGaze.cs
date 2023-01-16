@@ -40,8 +40,6 @@ public class DynamicPointCloudGaze : MonoBehaviour
     public float theta = 1.5f;
 
     public bool obtainOnlyResult = false;
-    private Vector3 Valid_gaze_orgin = new Vector3();
-    private Vector3 Valid_gaze_direction = new Vector3();
 
     public PrerecordedPointCloudReader pctReader;
     public PointCloudRenderer pcdRenderer;
@@ -56,12 +54,9 @@ public class DynamicPointCloudGaze : MonoBehaviour
     Vector3 Valid_gaze_origin_world;
     Vector3 Valid_gaze_direction_world;
     // H4C1R5
-    string ply_Folder_path = @"E:\ShishirPointCloudPLYData\H5_C1_R5\";
-    string dump_Folder_path = @"E:\ShishirPointCloudDUMPData\H5_C1_R5\";
-    string GazeDataDir = @"D:\xuemei\RawData\user_002\20230110-2212_002_A.json";
+    string GazeDataDir = @"D:\xuemei\RawData\user_005\20230114-2044_005_B.json";
     string userid;
     string session;
-    int curIdx = 0;
 
 
 
@@ -154,26 +149,48 @@ public class DynamicPointCloudGaze : MonoBehaviour
         isProcessing = false;
     }
 
-    void LoadPointCloud(string pc_filename)
+
+    Dictionary<string, List<Vector3>> namePointList = new Dictionary<string, List<Vector3>>();
+
+    List<Vector3> LoadPointCloudReturn(string pc_filename)
     {
-        currentPointCloud.Clear();
+        // whether in temp list
+        bool dataExist = namePointList.ContainsKey(pc_filename);
 
-        if (File.Exists(pc_filename))
+        if (!dataExist)
         {
-            var stream = File.Open(pc_filename, FileMode.Open, FileAccess.Read, FileShare.Read);
-            var header = ReadDataHeader(new StreamReader(stream));
-            var body = ReadDataBody(header, new BinaryReader(stream));
+            // read points
+            List<Vector3> pcd = new List<Vector3>();
 
-            for (int i = 0; i < body.vertices.Count; i++)
+            if (File.Exists(pc_filename))
             {
-                Vector3 v = body.vertices[i];
-                currentPointCloud.Add(v);
+                var stream = File.Open(pc_filename, FileMode.Open, FileAccess.Read, FileShare.Read);
+                var header = ReadDataHeader(new StreamReader(stream));
+                var body = ReadDataBody(header, new BinaryReader(stream));
+
+                for (int i = 0; i < body.vertices.Count; i++)
+                {
+                    Vector3 v = body.vertices[i];
+                    pcd.Add(v);
+                }
             }
+            else
+            {
+                Debug.LogWarning("currentObject Not Found");
+            }
+
+            // count limitation
+            if (namePointList.Count > 3)
+            {
+                var keys = namePointList.Keys.ToList();
+                namePointList.Remove(keys[0]);
+            }
+
+            // add to list
+            namePointList.Add(pc_filename, pcd);
         }
-        else
-        {
-            Debug.LogWarning("currentObject Not Found");
-        }
+
+        return namePointList[pc_filename];
     }
 
 
@@ -193,19 +210,22 @@ public class DynamicPointCloudGaze : MonoBehaviour
     {
         Invalid,
         X, Y, Z,
+        Xd, Yd, Zd,
         R, G, B, A,
-        Data8, Data16, Data32
+        Data8, Data16, Data32, Data64
     }
 
     static int GetPropertySize(DataProperty p)
     {
-        Debug.Log(p);
+        //Debug.Log(p);
         switch (p)
         {
-
             case DataProperty.X: return 4;
             case DataProperty.Y: return 4;
             case DataProperty.Z: return 4;
+            case DataProperty.Xd: return 8;
+            case DataProperty.Yd: return 8;
+            case DataProperty.Zd: return 8;
         }
         return 0;
     }
@@ -286,9 +306,9 @@ public class DynamicPointCloudGaze : MonoBehaviour
                 // Parse the property name entry.
                 switch (col[2])
                 {
-                    case "x": prop = DataProperty.X; break;
-                    case "y": prop = DataProperty.Y; break;
-                    case "z": prop = DataProperty.Z; break;
+                    case "x": prop = (col[1] == "double") ? DataProperty.Xd : DataProperty.X; break;
+                    case "y": prop = (col[1] == "double") ? DataProperty.Yd : DataProperty.Y; break;
+                    case "z": prop = (col[1] == "double") ? DataProperty.Zd : DataProperty.Z; break;
                 }
 
                 if (col[1] == "char" || col[1] == "uchar")
@@ -310,6 +330,13 @@ public class DynamicPointCloudGaze : MonoBehaviour
                     if (prop == DataProperty.Invalid)
                         prop = DataProperty.Data32;
                     else if (GetPropertySize(prop) != 4)
+                        throw new ArgumentException("Invalid property type ('" + line + "').");
+                }
+                else if (col[1] == "double")
+                {
+                    if (prop == DataProperty.Invalid)
+                        prop = DataProperty.Data64;
+                    else if (GetPropertySize(prop) != 8)
                         throw new ArgumentException("Invalid property type ('" + line + "').");
                 }
                 else
@@ -343,9 +370,13 @@ public class DynamicPointCloudGaze : MonoBehaviour
                     case DataProperty.X: x = reader.ReadSingle(); break;
                     case DataProperty.Y: y = reader.ReadSingle(); break;
                     case DataProperty.Z: z = reader.ReadSingle(); break;
+                    case DataProperty.Xd: x = (float)reader.ReadDouble(); break;
+                    case DataProperty.Yd: y = (float)reader.ReadDouble(); break;
+                    case DataProperty.Zd: z = (float)reader.ReadDouble(); break;
                     case DataProperty.Data8: reader.ReadByte(); break;
                     case DataProperty.Data16: reader.BaseStream.Position += 2; break;
                     case DataProperty.Data32: reader.BaseStream.Position += 4; break;
+                    case DataProperty.Data64: reader.BaseStream.Position += 8; break;
                 }
             }
             data.AddPoint(x, y, z);
@@ -357,7 +388,7 @@ public class DynamicPointCloudGaze : MonoBehaviour
 
 
 
-    /// <param name="EyeDatapath"></param>
+
     void ReadEyeData(string EyeDatapath)
     {
         string dataJsonString = File.ReadAllText(EyeDatapath);
@@ -409,38 +440,42 @@ public class DynamicPointCloudGaze : MonoBehaviour
                     // 2. load corresponding point cloud, and reser gazeimportance, and csv to get the positions of markers
                     if (previousFilename != gazeq.filename)
                     {
-                        string ply_filename = Path.ChangeExtension(gazeq.filename, "ply"); // from dump to ply
-                        string ply_full_filename = Regex.Replace(ply_filename, pattern, replace); // load the point cloud frame by file name ply format
-                                                                                                  // here may must load new point cloud, because the weight list should be reset
-                        LoadPointCloud(ply_full_filename); //right hand coordinate system, load corresponding point cloud data, and set all the weight as zero
-
-                        ResetGazeImportance();
+                        // here may must load new point cloud, because the weight list should be reset
+                        // load the point cloud frame by file name ply format
+                        // right hand coordinate system, load corresponding point cloud data
+                        currentPointCloud = LoadPointCloudReturn(Regex.Replace(Path.ChangeExtension(gazeq.filename, "ply"), pattern, replace));
 
                         // load the corresponding csv file, get the positions of markers
                         string pcFlag = Path.GetFileName(Path.GetDirectoryName(gazeq.filename)); // H1_C1_R1
                         string csvfn = $"*_{userid}_{session}_{pcFlag}_experiment_data_metrics.csv";
                         string[] fns = Directory.GetFiles(Path.GetDirectoryName(GazeDataDir), csvfn);
                         if (fns.Length != 1)
-                            Debug.LogError("GazeMetrics has multiple metric csv file, should only has one csv file for one sequence!");
+                            Debug.LogWarning("GazeMetrics has multiple metric csv file, should only has one csv file for one sequence!");
                         string csv_filename = fns[0];
                         markerpos = getMarkerPositionFromCSV(csv_filename);
 
                         previousFilename = gazeq.filename;
                     }
 
+                    // all gazes, reset to zero
+                    ResetGazeImportance();
+
                     if (flag == 2)  // should calc weight
                     {
                         // calc CompensateAngle
                         var localPos = gazeq.cameramatrix.inverse.MultiplyPoint(gazeq.gaze_origin_global_combined);
                         var localDir = gazeq.cameramatrix.inverse.MultiplyVector(gazeq.gaze_direction_global_combined);
-                        CompensateAngle = ErrorInterpolation(markerpos, localPos, localDir);
+                        bool gazeInnerCircle = ErrorInterpolation(markerpos, localPos, localDir, out CompensateAngle);
 
-                        // calc salency points, i.e., weights of the points of current point cloud
-                        RegisterPoints(gazeq.gaze_direction_global_combined, gazeq.gaze_origin_global_combined,
-                            currentPointCloud, CompensateAngle, 0.05f);
+                        if (gazeInnerCircle)
+                            RegisterPoints(gazeq.gaze_direction_global_combined, gazeq.gaze_origin_global_combined, currentPointCloud, CompensateAngle, 0.05f);
+
+                        //// calc salency points, i.e., weights of the points of current point cloud
+                        //RegisterPoints(gazeq.gaze_direction_global_combined, gazeq.gaze_origin_global_combined, currentPointCloud, CompensateAngle, 0.05f);
                     }
 
-                    SaveDataWithWeightCounter(gazeq, flag == 2);
+                    //SaveDataWithWeightCounter(gazeq, flag == 2);  // only save pcd frames that have fixation gazes
+                    SaveDataWithWeightCounter(gazeq, true);  // save every pcd frame
                 }
 
                 gazeWindowSet.Clear();
@@ -451,38 +486,44 @@ public class DynamicPointCloudGaze : MonoBehaviour
             // 3. add current gaze
             gazeWindowSet.Add(gaze);
         }
+
+        // save the last group data
+        ValidGaze gazeTemp = new ValidGaze(); // added by
+        SaveDataWithWeightCounter(gazeTemp, true);  // save every pcd frame
+        
+        // end
+        Debug.Log("process end");
     }
 
 
 
     WeightCounter counter = new WeightCounter();
     ValidGaze previousGaze = new ValidGaze();
-    void SaveDataWithWeightCounter(ValidGaze gaze, bool isFixation)
+    void SaveDataWithWeightCounter(ValidGaze gaze, bool save)
     {
         // 5. weight counter, average
         if (gaze.filename != previousGaze.filename)
         {
             var weight_temp = counter.Average();
-            if (weight_temp != null && isFixation)
+            if (weight_temp != null && save)
             {
-                currentPointGazeImportance = weight_temp;
-
                 // save point cloud and weight, when a group of gazes of gazeq.filename have been processed
                 savefoldername = Path.GetFileName(Path.GetDirectoryName(previousGaze.filename));
                 save_txt_filename = Path.GetFileName(Path.ChangeExtension(previousGaze.filename, "txt"));
 
-                WritePointCloud(currentPointCloud, currentPointGazeImportance,
+                var previouspcd = LoadPointCloudReturn(Regex.Replace(Path.ChangeExtension(previousGaze.filename, "ply"), pattern, replace));
+
+                WritePointCloud(previouspcd, weight_temp,
                             savefoldername, save_txt_filename, counter.Count, previousGaze.timestamp);
             }
 
             // reset counter and previousFilename 
             counter = new WeightCounter();
-            previousGaze = gaze;
         }
 
+        previousGaze = gaze;
         counter.Add(currentPointGazeImportance);
     }
-
 
 
 
@@ -493,7 +534,7 @@ public class DynamicPointCloudGaze : MonoBehaviour
     /// <param name="gazeorigin">the local origin coordinate of gaze</param>
     /// <param name="gazedirection">the local direction of gaze</param>
     /// <returns></returns>
-    float ErrorInterpolation(List<Tuple<Vector3, float>> markerpos, Vector3 gazeorigin, Vector3 gazedirection)
+    bool ErrorInterpolation(List<Tuple<Vector3, float>> markerpos, Vector3 gazeorigin, Vector3 gazedirection, out float rstAgnel)
     {
         // item1 of tuple is local position, item2 is error
         // 1. calc the pos in plane of gaze ray
@@ -516,23 +557,26 @@ public class DynamicPointCloudGaze : MonoBehaviour
         Vector3 gazepos = gazedirection * gazedis + gazeorigin;
 
         // 2. get the 3 markers
-        var marker0 = markerpos[0].Item1;
-        markerpos.RemoveAt(0);
+        int minIdx1 = int.MaxValue;
+        int minIdx2 = int.MaxValue;
+        GetNearestMarkersIdx(markerpos, gazepos, out minIdx1, out minIdx2);
 
-        GetNearestMarkers(markerpos, gazepos, out Vector3 MinMarker, out Vector3 SecondMinMarker, out float MinError1, out float MinError2);
-        var marker1 = MinMarker;
-        var marker2 = SecondMinMarker;
+        var marker0 = markerpos[0];
+        var marker1 = markerpos[minIdx1];
+        var marker2 = markerpos[minIdx2];
 
         // 3. interpolation
-        float dist1 = Vector3.Distance(marker0, gazepos);
-        float dist2 = Vector3.Distance(marker1, gazepos);
-        float dist3 = Vector3.Distance(marker2, gazepos);
-        float MinError0 = markerpos[0].Item2;
+        float dist1 = Vector3.Distance(marker0.Item1, gazepos);
+        float dist2 = Vector3.Distance(marker1.Item1, gazepos);
+        float dist3 = Vector3.Distance(marker2.Item1, gazepos);
         List<float> dis_all = new List<float> { dist1, dist2, dist3 };
-        List<float> error_all = new List<float> { MinError0, MinError1, MinError2 };
-        float CompensateAngle = WeightedSum(dis_all, error_all);
+        List<float> error_all = new List<float> { marker0.Item2, marker1.Item2, marker2.Item2 };
 
-        return CompensateAngle;
+        rstAgnel = WeightedSum(dis_all, error_all);
+
+        // 4. whether gazepos in inner the marker circle
+        // maybe, using cross-product for judgement
+        return dist1 <= Vector3.Distance(marker1.Item1, marker0.Item1);
     }
 
     public List<Tuple<Vector3, float>> getMarkerPositionFromCSV(string csvfilename)
@@ -579,32 +623,31 @@ public class DynamicPointCloudGaze : MonoBehaviour
     }
 
 
-    void GetNearestMarkers(List<Tuple<Vector3, float>> markerpos, Vector3 gazepos, out Vector3 MinDis, out Vector3 SecondMinDis, out float MinError1, out float MinError2)
+    void GetNearestMarkersIdx(List<Tuple<Vector3, float>> markerpos, Vector3 gazepos, out int minIdx1, out int minIdx2)
     {
-        int idx1;
-        int idx2;
         List<float> distances = new List<float>();
 
+        // since the center marker is index 0
         for (int i = 0; i < markerpos.Count; i++)
-
         {
-            var marker = markerpos[i];
-
-            float dis = Vector3.Distance(marker.Item1, gazepos);
-            distances.Add(dis);
+            if (i == 0)
+            {
+                distances.Add(float.MaxValue);
+            }
+            else
+            {
+                float dis = Vector3.Distance(markerpos[i].Item1, gazepos);
+                distances.Add(dis);
+            }
         }
+
         float dis1 = distances.Min();
-        idx1 = distances.IndexOf(dis1);
-        MinDis = markerpos[idx1].Item1;
-        MinError1 = markerpos[idx1].Item2;
+        minIdx1 = distances.IndexOf(dis1);
 
         // find the second min value
-        markerpos.RemoveAt(idx1);
-        distances.RemoveAt(idx1);
+        distances.RemoveAt(minIdx1);
         float dis2 = distances.Min();
-        idx2 = distances.IndexOf(dis2);
-        SecondMinDis = markerpos[idx2].Item1;
-        MinError2 = markerpos[idx2].Item2;
+        minIdx2 = distances.IndexOf(dis2);
     }
 
 
@@ -624,7 +667,7 @@ public class DynamicPointCloudGaze : MonoBehaviour
     int CalculateFixation(ValidGaze currGaze, float fixationMaxDispersion, float fixationMinInterval)
     {
         // more than 2 gazes, can be considered as fixation
-        if (gazeWindowSet.Count > 2)
+        if (gazeWindowSet.Count > 1)
         {
             Vector3 currRay = currGaze.gaze_direction_global_combined;
 
@@ -639,7 +682,6 @@ public class DynamicPointCloudGaze : MonoBehaviour
                     float fixedTime = gazeWindowSet[gazeWindowSet.Count - 1].timestamp - gazeWindowSet[0].timestamp;
                     if (fixedTime > fixationMinInterval)
                         return 2;
-
                     // if angle judgement is ok, but the fixation time is too short
                     return 1;
                 }
@@ -648,7 +690,7 @@ public class DynamicPointCloudGaze : MonoBehaviour
         return 0;
     }
 
-    void RegisterPoints(Vector3 gazeRay, Vector3 camPos, List<Vector3> currentPointCloud, float currentAngleThreshold, float acceptingDepthRange)
+    void RegisterPoints(Vector3 gazeRay, Vector3 camPos, List<Vector3> pointlist, float currentAngleThreshold, float acceptingDepthRange)
     {
         if (!obtainOnlyResult)
         {
@@ -670,9 +712,9 @@ public class DynamicPointCloudGaze : MonoBehaviour
                 minDistances[i] = float.MaxValue;
             }
 
-            for (int i = 0; i < currentPointCloud.Count; i++)
+            for (int i = 0; i < pointlist.Count; i++)
             {
-                Vector3 point = currentPointCloud[i];
+                Vector3 point = pointlist[i];
                 //point.z *= -1; // to unity left hand 
                 Vector3 dir = point - camPos;
                 float angleInDegree = Mathf.Abs(Vector3.Angle(gazeRay, dir));
@@ -723,8 +765,8 @@ public class DynamicPointCloudGaze : MonoBehaviour
                 float radius = (mDist + acceptingDepthRange) * Mathf.Tan(angleThreshold * Mathf.PI / 180);
                 foreach (int j in segments[i])
                 {
-                    Vector3 point = currentPointCloud[j];
-                    //point.z *= -1; // To do change currentPointCloud mirror z
+                    Vector3 point = pointlist[j];
+                    //point.z *= -1; // To do change pointlist mirror z
                     Vector3 diffvec = point - closestPoints[i];
                     float depth = Vector3.Dot(gazeRay, diffvec) / gazeRay.magnitude;
 
@@ -745,7 +787,7 @@ public class DynamicPointCloudGaze : MonoBehaviour
     }
 
 
-    void WritePointCloud(List<Vector3> currentPointCloud, List<float> currentPointGazeImportance, string savefoldername, string savefilename, int index, int TimeStamp)
+    void WritePointCloud(List<Vector3> pointList, List<float> currentPointGazeImportance, string savefoldername, string savefilename, int index, int TimeStamp)
     {
         if (!obtainOnlyResult)
         {
@@ -763,12 +805,12 @@ public class DynamicPointCloudGaze : MonoBehaviour
                 sw.WriteLine("PosX PosY PosZ GazeCount");
                 sw.Flush();
 
-                for (int i = 0; i < currentPointCloud.Count; i++)
+                for (int i = 0; i < pointList.Count; i++)
                 {
-                    sw.WriteLine(currentPointCloud[i].x + " " + currentPointCloud[i].y + " " + currentPointCloud[i].z + " " + currentPointGazeImportance[i]);
-                    sw.Flush();
-
+                    sw.WriteLine(pointList[i].x + " " + pointList[i].y + " " + pointList[i].z + " " + currentPointGazeImportance[i]);
+                    //sw.Flush();
                 }
+                sw.Close();
                 sw.Dispose();
             }
             //else
@@ -779,9 +821,9 @@ public class DynamicPointCloudGaze : MonoBehaviour
             //    sw.WriteLine("PosX PosY PosZ GazeCount");
             //    sw.Flush();
 
-            //    for (int i = 0; i < currentPointCloud.Count; i++)
+            //    for (int i = 0; i < pointlist.Count; i++)
             //    {
-            //        sw.WriteLine(currentPointCloud[i].x + " " + currentPointCloud[i].y + " " + currentPointCloud[i].z * (-1) + " " + currentPointGazeImportance[i]);
+            //        sw.WriteLine(pointlist[i].x + " " + pointlist[i].y + " " + pointlist[i].z * (-1) + " " + currentPointGazeImportance[i]);
             //        sw.Flush();
 
             //    }

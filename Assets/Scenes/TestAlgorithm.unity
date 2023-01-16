@@ -504,7 +504,6 @@ MonoBehaviour:
     m_NumAlphaKeys: 2
   only_folder_filename: 
   HeatMapSaveName: 
-  previous_pcFlag: 
   CompensateAngle: 0
   needWrite: 0
   savefoldername: 

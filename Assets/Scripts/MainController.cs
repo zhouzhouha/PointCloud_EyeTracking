@@ -54,7 +54,7 @@ public class MainController : MonoBehaviour
             }
             catch (System.Exception ex)
             {
-                Debug.LogError($"Create dataSaveDir error! [{dataSaveDir}]");
+                Debug.LogError($"Create dataSaveDir error! [{dataSaveDir}]  {ex.Message}");
                 throw;
             }
         }

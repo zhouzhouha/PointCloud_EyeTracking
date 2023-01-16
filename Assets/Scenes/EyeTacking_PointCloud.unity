@@ -289,6 +289,7 @@ MonoBehaviour:
   newFillRect: {fileID: 0}
   rightHandController: {fileID: 0}
   textForSliderValue: {fileID: 0}
+  OkButton: {fileID: 0}
 --- !u!1 &175844628
 GameObject:
   m_ObjectHideFlags: 0
@@ -333,7 +334,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8bbe99944e9152b4ba726c15e2ee4072, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  userid: 001
+  userid: 005
   Session: A
   dataSaveDir: D:\xuemei\RawData
   pc_folder_name: 
@@ -341,10 +342,10 @@ MonoBehaviour:
   m_nextStageAction:
     m_UseReference: 0
     m_Action:
-      m_Name: 
+      m_Name: Next Stage
       m_Type: 0
       m_ExpectedControlType: 
-      m_Id: 
+      m_Id: 1b687fe7-a466-48d2-979e-7022e91cebc8
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -1262,6 +1263,7 @@ MonoBehaviour:
   newFillRect: {fileID: 0}
   rightHandController: {fileID: 0}
   textForSliderValue: {fileID: 0}
+  OkButton: {fileID: 0}
 --- !u!114 &795944989
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1572,7 +1574,7 @@ MonoBehaviour:
   - E:\DUMP\H5_C1_R5
   - E:\DUMP\H4_C1_R5
   - E:\DUMP\H5_C1_R5
-  writeStats: 0
+  RandomOrderPath: 
   interval: 0
   LengthOfRay: 25
   pc_folder_name: 

@@ -16,22 +16,33 @@ public class WeightCounter
         {
             throw new Exception("_weightSumed and weight must have save count");
         }
+
         // first time
         if (_weightSumed == null)
         {
-            _weightSumed = weight;
-            _count = 1;
+            _weightSumed = new List<float>();
+            for (int i = 0; i < weight.Count; i++)
+            {
+                _weightSumed.Add(0f);
+            }
         }
-        else
+
+        float currSum = 0;
+        for (int i = 0; i < _weightSumed.Count; i++)
         {
-            for (int i = 0; i < _weightSumed.Count; i++)
-                _weightSumed[i] += weight[i];
+            _weightSumed[i] += weight[i];
+            currSum += weight[i];
+        }
+
+        // if all the elements in weight are zero, do not count++
+        if (currSum > 0)
+        {
             _count++;
         }
     }
     public List<float> Average()
     {
-        if (_weightSumed != null)
+        if (_weightSumed != null && _count != 0)
             for (int i = 0; i < _weightSumed.Count; i++)
                 _weightSumed[i] /= _count;
         return _weightSumed;

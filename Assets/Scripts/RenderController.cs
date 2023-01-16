@@ -1,5 +1,4 @@
 using Cwipc;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using ViveSR.anipal.Eye;
@@ -22,13 +21,10 @@ public class RenderController : MonoBehaviour
     private bool eye_callback_registered = false;
     private static Matrix4x4 localToWorld;
     private static string framename;
-
+    public string RandomOrderPath;
 
     //stats
-    public bool writeStats;
     public double interval = 0;
-    static int instanceCounter = 0;
-    int instanceNumber = instanceCounter++;
     private static System.IO.StreamWriter jstatsStream;
     private static bool initialized = false;
     public static long lasPointCloudTs;
@@ -60,6 +56,7 @@ public class RenderController : MonoBehaviour
 
     private void Awake()
     {
+        ReadPointCloudPath(RandomOrderPath);
         // all valid pc_paths
         if (pc_paths.Count == 0)
         {
@@ -81,6 +78,8 @@ public class RenderController : MonoBehaviour
         {
             Debug.LogError("Can not get a valid object of MainController!");
         }
+
+        
         // init reader and renderer
         UpdateDirPath(pc_paths[currentIdx]);
         // visualize the ray
@@ -114,6 +113,27 @@ public class RenderController : MonoBehaviour
         lr.material = new Material(Shader.Find("Sprites/Default"));
 
         return lr;
+    }
+
+    private List<string> ReadPointCloudPath(string user_1_s1)
+    {
+        string filepath = user_1_s1;
+        string pc_dir = @"D:\DUMP\";
+        string pc_folder;
+        StreamReader reader = null;
+        if (File.Exists(filepath)) 
+        {
+            reader = new StreamReader(File.OpenRead(filepath));
+            string headerline = reader.ReadLine();
+            while (!reader.EndOfStream)
+            {
+                var line = reader.ReadLine();
+                var values = line.Split(',');
+                pc_folder = values[1];
+                pc_paths.Add(Path.Combine(pc_dir, pc_folder));
+            }
+        }
+        return pc_paths;
     }
 
 
@@ -179,7 +199,7 @@ public class RenderController : MonoBehaviour
             Debug.LogWarning(" Eye tracking framework not working or not supported");
             return;
         }
-
+  
         if (SRanipal_Eye_Framework.Instance.EnableEyeDataCallback == true)
         {
             RegisterEyeTracker();
@@ -290,8 +310,6 @@ public class RenderController : MonoBehaviour
         {
             jstatsStream.WriteLine(" ]");
         }
-
-        //jstatsStream.WriteLine("{} ]");
         jstatsStream.Close();
     }
 
@@ -315,9 +333,6 @@ public class RenderController : MonoBehaviour
     }
 
 
-    static int ActivteFlag = 0;
-    static int InactiveFlag = 0;
-
     private static void EyeCallback(ref EyeData_v2 eye_data)
     {
         eyeData = eye_data;
@@ -327,12 +342,6 @@ public class RenderController : MonoBehaviour
         // TODO, different with the sample of SRanipal, don't know why
         Vector3 global_o_c = localToWorld.MultiplyPoint(Vector3.Scale(edata.verbose_data.combined.eye_data.gaze_origin_mm * 0.001f, new Vector3(-1, 1, 1)));
         Vector3 global_d_c = localToWorld.MultiplyVector(Vector3.Scale(edata.verbose_data.combined.eye_data.gaze_direction_normalized, new Vector3(-1, 1, 1)));
-
-        //Vector3 global_o_l = localToWorld.MultiplyPoint(Vector3.Scale(edata.verbose_data.left.gaze_origin_mm * 0.001f, new Vector3(-1, 1, 1)));
-        //Vector3 global_d_l = localToWorld.MultiplyVector(Vector3.Scale(edata.verbose_data.left.gaze_direction_normalized, new Vector3(-1, 1, 1)));
-
-        //Vector3 global_o_r = localToWorld.MultiplyPoint(Vector3.Scale(edata.verbose_data.right.gaze_origin_mm * 0.001f, new Vector3(-1, 1, 1)));
-        //Vector3 global_d_r = localToWorld.MultiplyVector(Vector3.Scale(edata.verbose_data.right.gaze_direction_normalized, new Vector3(-1, 1, 1)));
 
         gazeOriginWorldCombined = global_o_c;
         gazeDirectionWorldCombined = global_d_c;
@@ -370,7 +379,7 @@ public class RenderController : MonoBehaviour
             else
             {
                 jstatsStream.WriteLine(jstatsLine);
-                //jstatsStream.Flush()
+                jstatsStream.Flush();
             }
         }
     }
