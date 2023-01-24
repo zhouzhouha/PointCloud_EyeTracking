@@ -104,16 +104,18 @@ public class MainController : MonoBehaviour
             flag = 1;
         }
         // now: rating switch to calib
-        else if (nextWasTriggered && flag == 1)
+        //else if (nextWasTriggered && flag == 1)
+        //{
+        //    if (ratingController.FinishedRating)
+        else if (ratingController.FinishedRating && flag == 1)
         {
-            if (ratingController.Finished)
-            {
+   
+
                 renderController.SetRenderActive(false);
                 ratingController.gameObject.SetActive(false); 
                 cusGazeMetricController.gameObject.SetActive(true);
-                Debug.Log("Now flag is 1 and doing the Rating!");
+                Debug.Log("Now flag is 1 and from Rating to Error Profiling!");
                 flag = 2;
-            }
 
         }
         // now: calib switch to next render

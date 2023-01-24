@@ -10,9 +10,9 @@ using Unity.VisualScripting;
 
 public class RatingController : MonoBehaviour
 {
-    public Slider mainSlider;
+    //public Slider mainSlider;
     //Reference to new "RectTransform"(Child of FillArea).
-    public RectTransform newFillRect;
+    //public RectTransform newFillRect;
     public ActionBasedController rightHandController;
 
     private RenderController renderControl;
@@ -33,12 +33,18 @@ public class RatingController : MonoBehaviour
     private string experimentID;
     private string savePath;
     private string pc_id;
-    public GameObject OkButton; 
-   
+    //public GameObject OkButton; 
+    public GameObject ButtonBad;
+    public GameObject ButtonPoor;
+    public GameObject ButtonFair;
+    public GameObject ButtonGood;
+    public GameObject ButtonExcellent;
+
+
 
 
     private bool isFinised = false;
-    public bool Finished
+    public bool FinishedRating
     {
         get => isFinised;
         private set => isFinised = value;
@@ -58,7 +64,12 @@ public class RatingController : MonoBehaviour
         {
             Debug.LogError("Can not get a valid object of RenderController!");
         }
-        OkButton = GameObject.Find("OK");
+        ButtonBad = GameObject.Find("ButtonBad");
+        ButtonPoor = GameObject.Find("ButtonPoor");
+        ButtonFair = GameObject.Find("ButtonFair");
+        ButtonGood = GameObject.Find("ButtonGood");
+        ButtonExcellent = GameObject.Find("ButtonExcellent");
+
 
     }
 
@@ -66,22 +77,26 @@ public class RatingController : MonoBehaviour
 
     private void OnEnable()
     {
-        Finished = false;
-        OkButton.SetActive(true);
-        ResetSlider();
+        FinishedRating = false;
+        ButtonBad.SetActive(true);
+        ButtonPoor.SetActive(true);
+        ButtonFair.SetActive(true);
+        ButtonGood.SetActive(true);
+        ButtonExcellent.SetActive(true);
+        //ResetSlider();
     }
 
 
-    private void ResetSlider()
-    {
-        mainSlider.fillRect.gameObject.SetActive(false);
-        //mainSlider.fillRect = newFillRect;
-        mainSlider.direction = Slider.Direction.LeftToRight;
-        mainSlider.minValue = 1.0f;
-        mainSlider.maxValue = 5.0f;
-        mainSlider.wholeNumbers = true; // set the slider's value to accept not only the int value.
-        mainSlider.value = 0;
-    }
+    //private void ResetSlider()
+    //{
+    //    mainSlider.fillRect.gameObject.SetActive(false);
+    //    //mainSlider.fillRect = newFillRect;
+    //    mainSlider.direction = Slider.Direction.LeftToRight;
+    //    mainSlider.minValue = 1.0f;
+    //    mainSlider.maxValue = 5.0f;
+    //    mainSlider.wholeNumbers = true; // set the slider's value to accept not only the int value.
+    //    mainSlider.value = 0;
+    //}
 
 
     //Deactivates the old FillRect and assigns a new one.
@@ -114,26 +129,28 @@ public class RatingController : MonoBehaviour
     }
 
 
-    public void ShowSliderValue()
-    {
-        string sliderMessage = "Your quality score is:" + mainSlider.value.ToString("0.00");
-        textForSliderValue.text = sliderMessage;
-    }
+    //public void ShowSliderValue()
+    //{
+    //    string sliderMessage = "Your quality score is:" + mainSlider.value.ToString("0.00");
+    //    textForSliderValue.text = sliderMessage;
+    //}
 
 
 
-    public void FinishedRating()
+    public void FinishedRatingFun(int ButtonScore)
     {
         Debug.Log("On Click()");
 
-        if (!this.Finished)
+        if (!this.FinishedRating)
         {
             // save rating data pc_id
-            float rating_score = mainSlider.value;
+            //int rating_score = mainSlider.value;
+            int rating_score = ButtonScore;
             string allInfo = "pc_id: " + pc_id + " " + "MOS: " + rating_score.ToString() + "\n";
-            RecordRatingScore(allInfo, savePath);
-            Finished = true;
-            OkButton.SetActive(false);
+            // RecordRatingScore(allInfo, savePath);
+            SaveRatingScoreButton(allInfo, savePath);
+            FinishedRating = true;
+            //OkButton.SetActive(false);
         }
 
     }
@@ -141,29 +158,29 @@ public class RatingController : MonoBehaviour
 
 
 
-    public void RecordRatingScore(string strs, string path)
-    {
-        Debug.Log("Here is the rating score of the User" + mainSlider.value.ToString());
+    //public void RecordRatingScore(string strs, string path)
+    //{
+    //    Debug.Log("Here is the rating score of the User" + mainSlider.value.ToString());
 
-        if (!File.Exists(path))
-        {
-            FileStream fs = File.Create(path);
-            fs.Dispose();
-        }
+    //    if (!File.Exists(path))
+    //    {
+    //        FileStream fs = File.Create(path);
+    //        fs.Dispose();
+    //    }
 
-        using (StreamWriter stream = new StreamWriter(path, true))
-        {
-            stream.WriteLine(strs);
-        }
+    //    using (StreamWriter stream = new StreamWriter(path, true))
+    //    {
+    //        stream.WriteLine(strs);
+    //    }
 
-        //here is where the user should go to the calibration scene, remember to disable the rating
-        //create seperate function to call (do everything by funcation then call them!) save the socre
+    //    //here is where the user should go to the calibration scene, remember to disable the rating
+    //    //create seperate function to call (do everything by funcation then call them!) save the socre
 
-    }
+    //}
 
     public void SaveRatingScoreButton(string strs, string path)
     {
-        Debug.Log("Here is the rating score of the User" + mainSlider.value.ToString());
+        //Debug.Log("Here is the rating score of the User" + mainSlider.value.ToString());
 
         if (!File.Exists(path))
         {

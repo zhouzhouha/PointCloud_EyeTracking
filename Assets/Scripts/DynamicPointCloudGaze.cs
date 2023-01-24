@@ -54,7 +54,7 @@ public class DynamicPointCloudGaze : MonoBehaviour
     Vector3 Valid_gaze_origin_world;
     Vector3 Valid_gaze_direction_world;
     // H4C1R5
-    string GazeDataDir = @"D:\xuemei\RawData\user_005\20230114-2044_005_B.json";
+    string GazeDataDir = @"D:\xuemei\RawData\user_005\20230114-2001_005_A.json";
     string userid;
     string session;
 

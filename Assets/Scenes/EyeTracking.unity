@@ -394,11 +394,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff8f725615919754e9f812909bb7b587, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mainSlider: {fileID: 1923066836}
-  newFillRect: {fileID: 0}
   rightHandController: {fileID: 4860176229106756650}
   textForSliderValue: {fileID: 1177382663}
-  OkButton: {fileID: 88164308}
+  ButtonBad: {fileID: 1479730492}
+  ButtonPoor: {fileID: 1217593040}
+  ButtonFair: {fileID: 1766369093}
+  ButtonGood: {fileID: 872570022}
+  ButtonExcellent: {fileID: 1926784516}
 --- !u!1001 &391707104
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -911,7 +913,7 @@ GameObject:
   - component: {fileID: 872570025}
   - component: {fileID: 872570024}
   m_Layer: 5
-  m_Name: Button (3)
+  m_Name: ButtonGood
   m_TagString: Button
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -981,7 +983,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 872570025}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 269824617}
+        m_TargetAssemblyTypeName: RatingController, Assembly-CSharp
+        m_MethodName: FinishedRatingFun
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 4
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &872570025
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1419,7 +1433,7 @@ GameObject:
   - component: {fileID: 1217593043}
   - component: {fileID: 1217593042}
   m_Layer: 5
-  m_Name: Button (1)
+  m_Name: ButtonPoor
   m_TagString: Button
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1489,7 +1503,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1217593043}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 269824617}
+        m_TargetAssemblyTypeName: RatingController, Assembly-CSharp
+        m_MethodName: FinishedRatingFun
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 2
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1217593043
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1676,7 +1702,7 @@ GameObject:
   - component: {fileID: 1479730495}
   - component: {fileID: 1479730494}
   m_Layer: 5
-  m_Name: Button
+  m_Name: ButtonBad
   m_TagString: Button
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1747,14 +1773,14 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1479730492}
-        m_TargetAssemblyTypeName: UnityEngine.Object, UnityEngine
-        m_MethodName: 
-        m_Mode: 5
+      - m_Target: {fileID: 269824617}
+        m_TargetAssemblyTypeName: RatingController, Assembly-CSharp
+        m_MethodName: FinishedRatingFun
+        m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
+          m_IntArgument: 1
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
@@ -2226,7 +2252,7 @@ GameObject:
   - component: {fileID: 1766369096}
   - component: {fileID: 1766369095}
   m_Layer: 5
-  m_Name: Button (2)
+  m_Name: ButtonFair
   m_TagString: Button
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2296,7 +2322,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1766369096}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 269824617}
+        m_TargetAssemblyTypeName: RatingController, Assembly-CSharp
+        m_MethodName: FinishedRatingFun
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 3
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1766369096
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2874,17 +2912,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 8263205084334166033, guid: a52bad54fd5fe3e4ba4a3b7c783370d3, type: 3}
   m_PrefabInstance: {fileID: 1923066834}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1923066836 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8263205082771994757, guid: a52bad54fd5fe3e4ba4a3b7c783370d3, type: 3}
-  m_PrefabInstance: {fileID: 1923066834}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1926784516
 GameObject:
   m_ObjectHideFlags: 0
@@ -2898,7 +2925,7 @@ GameObject:
   - component: {fileID: 1926784519}
   - component: {fileID: 1926784518}
   m_Layer: 5
-  m_Name: Button (4)
+  m_Name: ButtonExcellent
   m_TagString: Button
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2968,7 +2995,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1926784519}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 269824617}
+        m_TargetAssemblyTypeName: RatingController, Assembly-CSharp
+        m_MethodName: FinishedRatingFun
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 5
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1926784519
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3426,6 +3465,26 @@ PrefabInstance:
     - target: {fileID: 4860176229408347811, guid: 5553f6bccdc163740a900449b94a4183, type: 3}
       propertyPath: m_Enabled
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4860176229602588880, guid: 5553f6bccdc163740a900449b94a4183, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4860176229602588880, guid: 5553f6bccdc163740a900449b94a4183, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4860176229602588880, guid: 5553f6bccdc163740a900449b94a4183, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4860176229602588880, guid: 5553f6bccdc163740a900449b94a4183, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4860176229602588880, guid: 5553f6bccdc163740a900449b94a4183, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4860176230215406218, guid: 5553f6bccdc163740a900449b94a4183, type: 3}
       propertyPath: m_Name

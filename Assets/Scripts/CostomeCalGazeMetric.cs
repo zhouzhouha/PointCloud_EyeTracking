@@ -170,8 +170,6 @@ namespace GazeMetrics
         void Update()
         {
             SetPreviewMarkers(showPreview);
-
-
             ////how to make sure the user must do all the calibration then stop???
             ///mainControl.nextStageAction.action.triggered
             if (rightHandController.activateAction.action.triggered)
