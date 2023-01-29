@@ -6,19 +6,19 @@ using UnityEngine.UI;
 namespace GazeMetrics
 {
     //[RequireComponent(typeof(GazeMetricsController))]
-    [RequireComponent(typeof(CostomeCalGazeMetric))]
+    [RequireComponent(typeof(CustomCalGazeMetric))]
     public class GazeMetricsStatusText : MonoBehaviour
     {
         public Text statusText;
 
         //private GazeMetricsController gazeMetricsController
-        private CostomeCalGazeMetric gazeMetricsController;
+        private CustomCalGazeMetric gazeMetricsController;
 
         void Awake()
         {
             SetStatusText("Not connected");
             //gazeMetricsController = GetComponent<GazeMetricsController>();
-            gazeMetricsController = GetComponent<CostomeCalGazeMetric>();
+            gazeMetricsController = GetComponent<CustomCalGazeMetric>();
         }
 
         void OnEnable()

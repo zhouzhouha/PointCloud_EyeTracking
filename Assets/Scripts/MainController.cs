@@ -13,7 +13,7 @@ public class MainController : MonoBehaviour
     private int flag = 0;  // 0: render, 1: rating, 2: calibration  init state only the render is working
     private RenderController renderController;
     private RatingController ratingController;
-    private CostomeCalGazeMetric cusGazeMetricController;
+    private CustomCalGazeMetric cusGazeMetricController;
 
 
     //[Header("Switch status code")]
@@ -69,7 +69,7 @@ public class MainController : MonoBehaviour
 
         renderController = FindObjectOfType<RenderController>();
         ratingController = FindObjectOfType<RatingController>();
-        cusGazeMetricController = FindObjectOfType<CostomeCalGazeMetric>();
+        cusGazeMetricController = FindObjectOfType<CustomCalGazeMetric>();
 
         //// TODO
         if (renderController == null || ratingController == null || cusGazeMetricController == null)
@@ -146,7 +146,7 @@ public class MainController : MonoBehaviour
                 renderController.RenderNext();
                 cusGazeMetricController.gameObject.SetActive(false);
                 ratingController.gameObject.SetActive(false);
-                renderController.SetRenderActive(true); // Todo: remove the frist 2 seconds data
+                renderController.SetRenderActive(true); // Todo: remove the frist 80 miliseconds data
                 Debug.Log("Now flag is 2 and doing the Calibration!");
                 flag = 0;
             }

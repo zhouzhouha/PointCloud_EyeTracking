@@ -11,7 +11,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 
 namespace GazeMetrics
 {
-    public class CostomeCalGazeMetric : MonoBehaviour
+    public class CustomCalGazeMetric : MonoBehaviour
     {
 
         [Header("Scene References")]
@@ -130,7 +130,7 @@ namespace GazeMetrics
 
             Time.fixedDeltaTime = (float)1 / settings.samplingRate;  // set the frame rate of FixedUpdate()
             InitPreviewMarker();
-            var sranipal = CostomeCalGazeMetric.FindObjectOfType<SRanipal_Eye_Framework>();
+            var sranipal = CustomCalGazeMetric.FindObjectOfType<SRanipal_Eye_Framework>();
             sranipal.StartFramework();
         }
 
