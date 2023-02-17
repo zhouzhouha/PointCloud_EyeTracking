@@ -20,7 +20,6 @@ namespace ViveSR
                     Rect newFieldPosition = EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Passive), label);
                     newFieldPosition.height = EditorGUIUtility.singleLineHeight;
                     Rect newLabelPosition = position;
-                    newLabelPosition.height = EditorGUIUtility.singleLineHeight;
                     newLabelPosition.width -= newFieldPosition.width;
 
                     SerializedProperty propSkinedMesh = property.FindPropertyRelative("skinnedMeshRenderer");

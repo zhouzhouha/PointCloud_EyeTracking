@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.InputSystem;
 using ViveSR.anipal.Eye;
+using Cwipc;
 using System;
 
 public class MainController : MonoBehaviour
@@ -15,11 +16,11 @@ public class MainController : MonoBehaviour
     private RatingController ratingController;
     private CustomCalGazeMetric cusGazeMetricController;
 
+    [Tooltip("The reader for the pointclouds for which we get gaze data")]
+    public PrerecordedPointCloudReader pcdReader;
+    //public PointCloudRenderer pcdRender;
 
-    //[Header("Switch status code")]
-    //public string Rating1;
-    //public string Calibration2;
-    //public string Eyetracking3;
+
 
     [Header("Experiment setting")]
     public string userid = "001";
@@ -39,11 +40,12 @@ public class MainController : MonoBehaviour
 
     private void Awake()
     {
-        // judge dataSaveDir
+        // test dataSaveDir
         if (string.IsNullOrWhiteSpace(dataSaveDir))
         {
             Debug.LogError("dataSaveDir is empty!");
         }
+       
 
         dataSaveDir = Path.Combine(dataSaveDir, $"user_{userid}");
         if (!System.IO.Directory.Exists(dataSaveDir))
@@ -93,16 +95,26 @@ public class MainController : MonoBehaviour
         bool nextWasTriggered = rightHandController.selectAction.action.triggered;
 #endif
         bool nextWasTriggered = m_nextStageAction.action.triggered;
-        if (Time.realtimeSinceStartup < ignoreNextUntil) nextWasTriggered = false;
-
-        if (nextWasTriggered && flag == 0)
-        {
+        //if (Time.realtimeSinceStartup < ignoreNextUntil) nextWasTriggered = false;
+        Debug.Log( "the loop times: " + pcdReader.GetLoopCount()); 
+        if (pcdReader.GetLoopCount() == 3 && flag == 0) {
             renderController.SetRenderActive(false);
             cusGazeMetricController.gameObject.SetActive(false);
             ratingController.gameObject.SetActive(true);
             Debug.Log("Now flag is 0 and will disable playing the Point cloud!");
             flag = 1;
+
         }
+            
+
+        //if (nextWasTriggered && flag == 0)
+        //{
+        //    renderController.SetRenderActive(false);
+        //    cusGazeMetricController.gameObject.SetActive(false);
+        //    ratingController.gameObject.SetActive(true);
+        //    Debug.Log("Now flag is 0 and will disable playing the Point cloud!");
+        //    flag = 1;
+        //}
         // now: rating switch to calib
         //else if (nextWasTriggered && flag == 1)
         //{
@@ -110,7 +122,6 @@ public class MainController : MonoBehaviour
         else if (ratingController.FinishedRating && flag == 1)
         {
    
-
                 renderController.SetRenderActive(false);
                 ratingController.gameObject.SetActive(false); 
                 cusGazeMetricController.gameObject.SetActive(true);
