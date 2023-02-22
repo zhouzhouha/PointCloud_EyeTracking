@@ -949,7 +949,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 80, y: 0}
+  m_AnchoredPosition: {x: 80.2, y: 0}
   m_SizeDelta: {x: 70, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &872570024
@@ -1091,9 +1091,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pcdReader: {fileID: 2942035107735954229}
-  userid: 100
-  Session: A
-  dataSaveDir: D:\xuemei\RawData
+  userid: 1
+  Session: D
+  dataSaveDir: C:\xuemei\RawData
   pc_folder_name: 
   rightHandController: {fileID: 4860176229106756650}
   m_nextStageAction:
@@ -1157,7 +1157,7 @@ MonoBehaviour:
   pcdReader: {fileID: 2942035107735954229}
   pcdRender: {fileID: 205970590}
   pc_paths: []
-  RandomOrderPath: C:\Users\vrtogether\Downloads\user_5_s2.csv
+  RandomOrderPath: C:\xuemei\user_1_s4.csv
   interval: 0
   LengthOfRay: 25
   pc_folder_name: 
@@ -1296,7 +1296,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 39.7, y: 30}
+  m_AnchoredPosition: {x: 47.8, y: 30}
   m_SizeDelta: {x: 100, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1177382663
@@ -2289,7 +2289,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 40, y: 0}
+  m_AnchoredPosition: {x: 38.4, y: 0}
   m_SizeDelta: {x: 70, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1766369095
@@ -2391,6 +2391,24 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1655350500223900520, guid: 0aedab63f5927bd45b057b754040a9a3, type: 3}
   m_PrefabInstance: {fileID: 391707104}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1809160792 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2942035106827000202, guid: c3b1c94af23e743a08547f27f81df210, type: 3}
+  m_PrefabInstance: {fileID: 2942035107735954227}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1809160793
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1809160792}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0734564f23e7c44bbd06381d2056234, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  randomRotationMatrix: 0
 --- !u!1 &1859352768
 GameObject:
   m_ObjectHideFlags: 0
@@ -3086,7 +3104,7 @@ RectTransform:
   m_GameObject: {fileID: 1958938516}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.95, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1926784517}
@@ -3390,7 +3408,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4770916539198233020, guid: c3b1c94af23e743a08547f27f81df210, type: 3}
       propertyPath: pcMirrorZ
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4770916539198233020, guid: c3b1c94af23e743a08547f27f81df210, type: 3}
       propertyPath: pointcloudSource

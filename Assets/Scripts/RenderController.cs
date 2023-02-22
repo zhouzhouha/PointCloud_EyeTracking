@@ -5,8 +5,9 @@ using ViveSR.anipal.Eye;
 using System.Runtime.InteropServices;
 using UnityEngine.Assertions;
 using System;
+using System.Collections;
 using System.IO;
-
+using Random = System.Random;
 
 public class RenderController : MonoBehaviour
 {
@@ -21,7 +22,9 @@ public class RenderController : MonoBehaviour
     private bool eye_callback_registered = false;
     private static Matrix4x4 localToWorld;
     private static string framename;
+    private static int RotationAngleY; // why this need to be static?
     public string RandomOrderPath;
+    
 
     //stats
     public double interval = 0;
@@ -31,8 +34,11 @@ public class RenderController : MonoBehaviour
     // for verify if the result will be correct or not
     public int LengthOfRay = 25;
     public string pc_folder_name;
+    
 
+    [Tooltip("Get the mainControl and Randomizer")]
     private MainController mainControl;
+    //private RandomRotation Randomizer;
 
 
     [SerializeField]
@@ -81,12 +87,13 @@ public class RenderController : MonoBehaviour
 
         
         // init reader and renderer
-        UpdateDirPath(pc_paths[currentIdx]);
+        UpdateDirPath(pc_paths[currentIdx], RotationAngleY);
         // visualize the ray
         GazeRayRendererLeft = InitGameObjAndLineRender("left");
         GazeRayRendererRight = InitGameObjAndLineRender("right");
         GazeRayRendererCombined = InitGameObjAndLineRender("combined");
     }
+    //new Matrix4x4()
 
     private void OnEnable()
     {
@@ -118,7 +125,7 @@ public class RenderController : MonoBehaviour
     private List<string> ReadPointCloudPath(string user_1_s1)
     {
         string filepath = user_1_s1;
-        string pc_dir = @"D:\DUMP\";
+        string pc_dir = @"D:\DUMP_NEW\";
         string pc_folder;
         StreamReader reader = null;
         if (File.Exists(filepath)) 
@@ -192,6 +199,9 @@ public class RenderController : MonoBehaviour
         //lastCameraMatrix = Camera.main.cameraToWorldMatrix; //  model matrix
         localToWorld = Camera.main.transform.localToWorldMatrix;
         framename = pcdRender.metadataMostRecentReception.filename;
+        //RotationMatrix = Randomizer.randomRotationMatrix;
+        //RotationAngleY = 
+        Debug.Log("Rotation Matrix is: " + RotationAngleY);
 
         if (SRanipal_Eye_Framework.Status != SRanipal_Eye_Framework.FrameworkStatus.WORKING &&
             SRanipal_Eye_Framework.Status != SRanipal_Eye_Framework.FrameworkStatus.NOT_SUPPORT)
@@ -254,21 +264,27 @@ public class RenderController : MonoBehaviour
         }
 
         string renderPath = pc_paths[currentIdx];
+        // added by xuemei 2023.2.19
+        int y_degree = UnityEngine.Random.Range(0, 180);
+       
+        transform.Rotate(0, y_degree, 0);
         Debug.Log("Currrent Point Cloud is:" + renderPath + currentIdx);
-        UpdateDirPath(renderPath);
+        UpdateDirPath(renderPath, y_degree);
 
         return true;
     }
 
 
+    static bool s_rendererActive;
 
     public void SetRenderActive(bool value)
     {
         this.gameObject.SetActive(value);
+        s_rendererActive = value;
     }
 
 
-    public void UpdateDirPath(string dirpath)
+    public void UpdateDirPath(string dirpath, int RotationAngleYinDegree)
     {
         bool activeState = this.gameObject.activeSelf;
 
@@ -281,6 +297,7 @@ public class RenderController : MonoBehaviour
         pcdReader.dirName = dirpath;
         // TODO: release the old pct reader, renderer
         pc_folder_name = dirpath;
+        RotationAngleY = RotationAngleYinDegree;
         this.gameObject.SetActive(activeState);
 
 
@@ -288,6 +305,7 @@ public class RenderController : MonoBehaviour
         {
             OnCurrDirPathUpdated(dirpath);
         }
+
         mainControl.NewSequenceHasStarted();
     }
 
@@ -357,6 +375,7 @@ public class RenderController : MonoBehaviour
             gaze_origin_global_combined = global_o_c,
             gaze_direction_global_combined = global_d_c,
             pcname = framename,
+            rotation_matrix = RotationAngleY,
         };
         Output(JsonUtility.ToJson(fData));
     }
@@ -424,6 +443,7 @@ public class RenderController : MonoBehaviour
         public Vector3 gaze_origin_global_combined;
         public Vector3 gaze_direction_global_combined;
         public string pcname;
+        public int rotation_matrix;
     }
 
 

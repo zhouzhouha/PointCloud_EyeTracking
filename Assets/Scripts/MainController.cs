@@ -25,7 +25,7 @@ public class MainController : MonoBehaviour
     [Header("Experiment setting")]
     public string userid = "001";
     public string Session = "A";
-    public string dataSaveDir = @"D:\";
+    public string dataSaveDir = @"C:\";
     // TODO
     public string pc_folder_name;
 

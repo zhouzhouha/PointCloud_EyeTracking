@@ -4,7 +4,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using UnityEngine;
@@ -53,7 +52,7 @@ public class DynamicPointCloudGaze : MonoBehaviour
 
     Vector3 Valid_gaze_origin_world;
     Vector3 Valid_gaze_direction_world;
-    // H4C1R5
+    // Dir of the collected json file
     string GazeDataDir = @"D:\xuemei\RawData\user_005\20230114-2001_005_A.json";
     string userid;
     string session;
@@ -64,8 +63,8 @@ public class DynamicPointCloudGaze : MonoBehaviour
     float fixationIntervalThreshold = 100;
     string pattern = "DUMP";
     string replace = "PLY";
-    public string only_folder_filename;
-    public string HeatMapSaveName;
+    //public string only_folder_filename;
+    //public string HeatMapSaveName;
     public float CompensateAngle;
     public bool needWrite;
     public string savefoldername;
@@ -83,7 +82,7 @@ public class DynamicPointCloudGaze : MonoBehaviour
         string[] words = jsonfilename.Split('_');
         userid = words[1];
         session = words[2];
-        Debug.Log("Test start:  userid is" + userid + " and session is" + session);
+        Debug.Log("Current userid is" + userid + " and session is" + session);
         GazeRayRenderer = GetComponent<LineRenderer>();
         GazeRayRenderer.material = new Material(Shader.Find("Sprites/Default"));
         // a simple 2 color gradient with a fixed alpha of 1.0f.
@@ -404,7 +403,7 @@ public class DynamicPointCloudGaze : MonoBehaviour
             if (string.IsNullOrWhiteSpace(dump_filename))  // invalid pcname
                 continue;
 
-            // valid combined bit_mask
+            // valid combined bit_mask  invalid bit_mask of eye data
             if (datai.eye_data_cwi.verbose_data.combined.eye_data.eye_data_validata_bit_mask != 3)
                 continue;
 
@@ -428,19 +427,20 @@ public class DynamicPointCloudGaze : MonoBehaviour
 
             // 2. is fixation point or not? (velocity based method)
             int flag = CalculateFixation(gaze, fixationDispersionThreshold, fixationIntervalThreshold);
+
             if (flag == 2 || flag == 1)
             {
-                // here, all the elements in gazeWindowSet are fixation gazes,
-                // or are grouped but cannot been considered as fixation
+                // here, all the elements in gazeWindowSet are fixation gazes,  flag ==2
+                // or are grouped but cannot been considered as fixation        flag ==1
                 for (int q = 0; q < gazeWindowSet.Count; q++)
                 {
-                    // load the corresponding point cloud, .ply or .cwipcdump
+                    // load the corresponding point cloud, .ply 
                     ValidGaze gazeq = gazeWindowSet[q];
 
-                    // 2. load corresponding point cloud, and reser gazeimportance, and csv to get the positions of markers
+                    // 2. load corresponding point cloud, and reset gazeimportance, and csv to get the positions of markers
                     if (previousFilename != gazeq.filename)
                     {
-                        // here may must load new point cloud, because the weight list should be reset
+                        // here must load new point cloud, because the weight list should be reset
                         // load the point cloud frame by file name ply format
                         // right hand coordinate system, load corresponding point cloud data
                         currentPointCloud = LoadPointCloudReturn(Regex.Replace(Path.ChangeExtension(gazeq.filename, "ply"), pattern, replace));
@@ -481,7 +481,7 @@ public class DynamicPointCloudGaze : MonoBehaviour
                 gazeWindowSet.Clear();
             }
             else if (flag == 0)  // here should add current gaze, is same as next line
-            { }
+            { }                  // if flag ==0, means 1. no enough gaze points; 2 
 
             // 3. add current gaze
             gazeWindowSet.Add(gaze);
@@ -656,20 +656,20 @@ public class DynamicPointCloudGaze : MonoBehaviour
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="currGaze"></param>
-    /// <param name="fixationMaxDispersion"></param>
-    /// <param name="fixationMinInterval"></param>
+    /// <param name="currGaze"></current gaze point to be considered>
+    /// <param name="fixationMaxDispersion"></degree threshold>
+    /// <param name="fixationMinInterval"></time threshold>
     /// <returns>flag, 0, 1, 2.
-    /// 0: the elements in gazeWindowSet can not been judged as fixation or not, maybe no enough elements, or angles between them with next gaze is small
+    /// 0: the elements in gazeWindowSet can not been considered as fixation or not, maybe no enough elements, or angles between them with next gaze is small
     /// 1: the elements in gazeWindowSet are grouped, i.e., angles between them with next gaze is bigger than threshold, but time span is too short
-    /// 2: the elements in gazeWindowSet are fixation, i.e., angles between them with next gaze is bigger than threshold, and time span is ok
+    /// 2: the elements in gazeWindowSet are fixation, i.e., angles between them with next gaze is bigger than threshold, and time span is larger than fixationMinInterval
     /// </returns>
     int CalculateFixation(ValidGaze currGaze, float fixationMaxDispersion, float fixationMinInterval)
     {
-        // more than 2 gazes, can be considered as fixation
+        // more than 2 gazes, can be considered as fixation point
         if (gazeWindowSet.Count > 1)
         {
-            Vector3 currRay = currGaze.gaze_direction_global_combined;
+            Vector3 currRay = currGaze.gaze_direction_global_combined;  //currRay is the ray of the last gaze point in the WindowSet list
 
             for (int i = 0; i < gazeWindowSet.Count; i++)
             {
@@ -682,7 +682,7 @@ public class DynamicPointCloudGaze : MonoBehaviour
                     float fixedTime = gazeWindowSet[gazeWindowSet.Count - 1].timestamp - gazeWindowSet[0].timestamp;
                     if (fixedTime > fixationMinInterval)
                         return 2;
-                    // if angle judgement is ok, but the fixation time is too short
+                    // if angle judgement is ok, but the fixation time is too short, should be considered as saccade??
                     return 1;
                 }
             }

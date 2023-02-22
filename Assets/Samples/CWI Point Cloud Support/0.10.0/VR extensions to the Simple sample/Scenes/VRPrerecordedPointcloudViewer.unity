@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028349, g: 0.22571358, b: 0.3069225, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -282,6 +282,7 @@ MonoBehaviour:
     m_Bits: 4294967295
   m_InteractionLayers:
     m_Bits: 1
+  m_DistanceCalculationMode: 1
   m_SelectMode: 1
   m_CustomReticle: {fileID: 0}
   m_FirstHoverEntered:
@@ -314,6 +315,8 @@ MonoBehaviour:
   m_Deactivated:
     m_PersistentCalls:
       m_Calls: []
+  m_StartingHoverFilters: []
+  m_StartingSelectFilters: []
   m_OnFirstHoverEntered:
     m_PersistentCalls:
       m_Calls: []
@@ -343,7 +346,10 @@ MonoBehaviour:
       m_Calls: []
   m_TeleportationProvider: {fileID: 0}
   m_MatchOrientation: 0
+  m_MatchDirectionalInput: 0
   m_TeleportTrigger: 0
+  m_FilterSelectionByHitNormal: 0
+  m_UpNormalToleranceDegrees: 30
   m_Teleporting:
     m_PersistentCalls:
       m_Calls: []
@@ -440,7 +446,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2942035106827000207, guid: c3b1c94af23e743a08547f27f81df210, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2942035106827000207, guid: c3b1c94af23e743a08547f27f81df210, type: 3}
       propertyPath: m_LocalRotation.x
@@ -448,7 +454,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2942035106827000207, guid: c3b1c94af23e743a08547f27f81df210, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2942035106827000207, guid: c3b1c94af23e743a08547f27f81df210, type: 3}
       propertyPath: m_LocalRotation.z
@@ -460,10 +466,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2942035106827000207, guid: c3b1c94af23e743a08547f27f81df210, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 180
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2942035106827000207, guid: c3b1c94af23e743a08547f27f81df210, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4770916539198233020, guid: c3b1c94af23e743a08547f27f81df210, type: 3}
+      propertyPath: pcMirrorX
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4770916539198233020, guid: c3b1c94af23e743a08547f27f81df210, type: 3}
@@ -492,7 +502,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   voxelSize: 0
   frameRate: 30
-  dirName: ../Samples/loot-150K-4tiles
+  _dirName: C:\TestAll
+  _loop_counter: 0
+  defaultPointSize: 0.01
 --- !u!1001 &4860176229106756649
 PrefabInstance:
   m_ObjectHideFlags: 0
