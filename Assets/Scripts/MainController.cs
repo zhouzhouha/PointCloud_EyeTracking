@@ -96,8 +96,10 @@ public class MainController : MonoBehaviour
 #endif
         bool nextWasTriggered = m_nextStageAction.action.triggered;
         //if (Time.realtimeSinceStartup < ignoreNextUntil) nextWasTriggered = false;
-        Debug.Log( "the loop times: " + pcdReader.GetLoopCount()); 
-        if (pcdReader.GetLoopCount() == 3 && flag == 0) {
+        //Debug.Log( "the loop times: " + pcdReader.GetLoopCount()); 
+        Debug.Log("the loop times: " + pcdReader.GetLoopCount());
+        if (pcdReader.GetLoopCount() == 3 && flag == 0)
+        {
             renderController.SetRenderActive(false);
             cusGazeMetricController.gameObject.SetActive(false);
             ratingController.gameObject.SetActive(true);
@@ -105,7 +107,7 @@ public class MainController : MonoBehaviour
             flag = 1;
 
         }
-            
+
 
         //if (nextWasTriggered && flag == 0)
         //{
