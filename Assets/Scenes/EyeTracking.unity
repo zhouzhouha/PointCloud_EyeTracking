@@ -1091,7 +1091,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pcdReader: {fileID: 2942035107735954229}
-  userid: 1
+  userid: 100
   Session: D
   dataSaveDir: C:\xuemei\RawData
   pc_folder_name: 
@@ -1157,7 +1157,7 @@ MonoBehaviour:
   pcdReader: {fileID: 2942035107735954229}
   pcdRender: {fileID: 205970590}
   pc_paths: []
-  RandomOrderPath: C:\xuemei\user_1_s4.csv
+  RandomOrderPath: C:\OrderFile\user_1_s1.csv
   interval: 0
   LengthOfRay: 25
   pc_folder_name: 
@@ -3441,7 +3441,6 @@ MonoBehaviour:
   voxelSize: 0
   frameRate: 30
   _dirName: 
-  _loop_counter: 0
   defaultPointSize: 0.0015
 --- !u!1001 &4860176229106756649
 PrefabInstance:

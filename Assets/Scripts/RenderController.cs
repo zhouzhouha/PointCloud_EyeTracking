@@ -125,7 +125,7 @@ public class RenderController : MonoBehaviour
     private List<string> ReadPointCloudPath(string user_1_s1)
     {
         string filepath = user_1_s1;
-        string pc_dir = @"D:\DUMP_NEW\";
+        string pc_dir = @"C:\DUMP_NEW\";
         string pc_folder;
         StreamReader reader = null;
         if (File.Exists(filepath)) 
