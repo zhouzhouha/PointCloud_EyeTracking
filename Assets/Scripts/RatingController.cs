@@ -124,17 +124,8 @@ public class RatingController : MonoBehaviour
     //Update is called once per frame
     void Update()
     {
-        //ShowSliderValue(mainSlider, textonSliderValue);
 
     }
-
-
-    //public void ShowSliderValue()
-    //{
-    //    string sliderMessage = "Your quality score is:" + mainSlider.value.ToString("0.00");
-    //    textForSliderValue.text = sliderMessage;
-    //}
-
 
 
     public void FinishedRatingFun(int ButtonScore)

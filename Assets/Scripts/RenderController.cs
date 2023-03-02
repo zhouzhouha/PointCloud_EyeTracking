@@ -11,9 +11,13 @@ using Random = System.Random;
 
 public class RenderController : MonoBehaviour
 {
-    [Tooltip("The reader for the pointclouds for which we get gaze data")]
-    public PrerecordedPointCloudReader pcdReader;
-    public PointCloudRenderer pcdRender;
+    //[Tooltip("The reader for the pointclouds for which we get gaze data")]
+    //public PrerecordedPointCloudReader pcdReader; // the source reader from prefab
+    //public PointCloudRenderer pcdRender;          // the source pcdRender from prefab
+ 
+
+    [Tooltip("pointcloudPlayback for preload the path")]
+    public PointCloudPlayback pointcloudPlayback;
 
     [Tooltip("Input the folder name for the sequence")]
     public List<string> pc_paths;
@@ -34,11 +38,10 @@ public class RenderController : MonoBehaviour
     // for verify if the result will be correct or not
     public int LengthOfRay = 25;
     public string pc_folder_name;
-    
+
 
     [Tooltip("Get the mainControl and Randomizer")]
     private MainController mainControl;
-    //private RandomRotation Randomizer;
 
 
     [SerializeField]
@@ -85,15 +88,22 @@ public class RenderController : MonoBehaviour
             Debug.LogError("Can not get a valid object of MainController!");
         }
 
-        
+        pointcloudPlayback = FindObjectOfType<PointCloudPlayback>();
+        if (mainControl == null)
+        {
+            Debug.LogError("Can not get a valid object of PointCloudPlayback!");
+        }
+
+
         // init reader and renderer
         UpdateDirPath(pc_paths[currentIdx], RotationAngleY);
+        
+
         // visualize the ray
         GazeRayRendererLeft = InitGameObjAndLineRender("left");
         GazeRayRendererRight = InitGameObjAndLineRender("right");
         GazeRayRendererCombined = InitGameObjAndLineRender("combined");
     }
-    //new Matrix4x4()
 
     private void OnEnable()
     {
@@ -160,13 +170,14 @@ public class RenderController : MonoBehaviour
             return;
         }
 
-        if (pcdReader == null)
-        {
-            Debug.LogError("GazeTrackerXuemei needs a pointcloudreader");
-            enabled = false;
-            return;
-        }
+        //if (pcdReader == null) // which is inactive
+        //{
+        //    Debug.LogError("GazeTrackerXuemei needs a pointcloudreader");
+        //    enabled = false;
+        //    return;
+        //}
 
+        
         // gaze data file path
         var mainControl = FindObjectOfType<MainController>();
         string dataSavePath = mainControl.dataSaveDir;
@@ -198,10 +209,9 @@ public class RenderController : MonoBehaviour
         // TODO: Record the data only when point cloud is playback??
         //lastCameraMatrix = Camera.main.cameraToWorldMatrix; //  model matrix
         localToWorld = Camera.main.transform.localToWorldMatrix;
-        framename = pcdRender.metadataMostRecentReception.filename;
-        //RotationMatrix = Randomizer.randomRotationMatrix;
-        //RotationAngleY = 
-        Debug.Log("Rotation Matrix is: " + RotationAngleY);
+        framename = pointcloudPlayback.cur_renderer.metadataMostRecentReception.filename;  // how to get the filename??
+        //Debug.Log("Render controller (pointcloud sequence name): " + framename);
+        //Debug.Log("Rotation Matrix is: " + RotationAngleY);
 
         if (SRanipal_Eye_Framework.Status != SRanipal_Eye_Framework.FrameworkStatus.WORKING &&
             SRanipal_Eye_Framework.Status != SRanipal_Eye_Framework.FrameworkStatus.NOT_SUPPORT)
@@ -274,19 +284,31 @@ public class RenderController : MonoBehaviour
         return true;
     }
 
-
-    static bool s_rendererActive;
+    
+    public string PreloadNext()
+    {
+        currentIdx = currentIdx + 1;
+        if (currentIdx > (pc_paths.Count - 1))
+        {
+            UnityEditor.EditorApplication.isPlaying = false;
+            //return false;
+        }
+        string renderPath = pc_paths[currentIdx];
+        Debug.Log(" Preload Point Cloud is:" + renderPath + currentIdx);
+        //UpdateDirPath(renderPath, y_degree);
+        return renderPath;
+    }
 
     public void SetRenderActive(bool value)
     {
         this.gameObject.SetActive(value);
-        s_rendererActive = value;
     }
 
 
     public void UpdateDirPath(string dirpath, int RotationAngleYinDegree)
     {
         bool activeState = this.gameObject.activeSelf;
+        Debug.Log("Now render Obj is:" + activeState);
 
         // first set to false before giving the dir if true
         if (activeState)
@@ -294,19 +316,22 @@ public class RenderController : MonoBehaviour
             this.gameObject.SetActive(false);
         }
 
-        pcdReader.dirName = dirpath;
-        // TODO: release the old pct reader, renderer
+        
         pc_folder_name = dirpath;
+        //initilization for the first folder path added by xuemei 2023.3.1
+        pointcloudPlayback.dirName = dirpath;
+        // TODO: release the old pct reader, renderer
         RotationAngleY = RotationAngleYinDegree;
+
         this.gameObject.SetActive(activeState);
 
 
         if (OnCurrDirPathUpdated != null)
         {
-            OnCurrDirPathUpdated(dirpath);
+            OnCurrDirPathUpdated(dirpath);  
         }
 
-        mainControl.NewSequenceHasStarted();
+        //mainControl.NewSequenceHasStarted();
     }
 
 
