@@ -1332,7 +1332,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   userid: 100
-  Session: D
+  Session: A
   dataSaveDir: C:\xuemei\RawData
   rightHandController: {fileID: 4860176229106756650}
   m_nextStageAction:
@@ -1394,7 +1394,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pointcloudPlayback: {fileID: 284891047}
   pc_paths: []
-  RandomOrderPath: C:\OrderFile\user_1_s1.csv
+  RandomOrderPath: C:\xuemei\user_1_s1.csv
   interval: 0
   LengthOfRay: 25
   pc_folder_name: 
@@ -3665,6 +3665,7 @@ MonoBehaviour:
   frameRate: 30
   loopCount: 2
   _dirName: 
+  _loop_counter: 0
   defaultPointSize: 0.0015
 --- !u!1001 &4860176229106756649
 PrefabInstance:
@@ -3707,7 +3708,7 @@ PrefabInstance:
       objectReference: {fileID: -944628639613478452, guid: f92fe5351c6a5d3418968a061f0bb1c8, type: 3}
     - target: {fileID: 4860176229091537138, guid: 5553f6bccdc163740a900449b94a4183, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.5
+      value: -1.25
       objectReference: {fileID: 0}
     - target: {fileID: 4860176229091537139, guid: 5553f6bccdc163740a900449b94a4183, type: 3}
       propertyPath: m_RequestedTrackingOriginMode

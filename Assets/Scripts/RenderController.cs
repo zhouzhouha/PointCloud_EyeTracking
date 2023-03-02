@@ -277,7 +277,7 @@ public class RenderController : MonoBehaviour
         // added by xuemei 2023.2.19
         int y_degree = UnityEngine.Random.Range(0, 180);
        
-        transform.Rotate(0, y_degree, 0);
+        transform.Rotate(0, 0, 0); // Test if the camera face to the center of the object
         Debug.Log("Currrent Point Cloud is:" + renderPath + currentIdx);
         UpdateDirPath(renderPath, y_degree);
 
