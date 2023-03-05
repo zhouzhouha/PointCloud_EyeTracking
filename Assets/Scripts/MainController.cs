@@ -74,13 +74,13 @@ public class MainController : MonoBehaviour
         pointcloudPlayback = FindObjectOfType<PointCloudPlayback>();
 
         //// TODO
-        if (renderController == null || ratingController == null || cusGazeMetricController == null || pointcloudPlayback == null)
+        if ( ratingController == null || cusGazeMetricController == null || pointcloudPlayback == null)
         {
             Debug.LogError("renderController == null || ratingController == null || cusGazeMetricController == null || pointcloudPlayback == null !!!");
             UnityEditor.EditorApplication.isPlaying = false;
         }
 
-        renderController.gameObject.SetActive(true);
+        renderController.gameObject.SetActive(false);
         pointcloudPlayback.gameObject.SetActive(true);
         ratingController.gameObject.SetActive(false);
         cusGazeMetricController.gameObject.SetActive(false);
@@ -106,11 +106,9 @@ public class MainController : MonoBehaviour
             //    ratingController.gameObject.SetActive(true);
             //    cusGazeMetricController.gameObject.SetActive(false);
             //    renderController.SetRenderActive(false);  // OnDestroy call Stop then reader = null ;
-            //pointcloudPlayback.Stop();
             Debug.Log("Now flag is 0 and will disable playing the Point cloud!");
             flag = 1;
             pointcloudPlayback.isRenderFinished = false;
-            //Debug.Log("After disable the point")
             
 
         }

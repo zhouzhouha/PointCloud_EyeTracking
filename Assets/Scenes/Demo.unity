@@ -539,7 +539,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8050546849639997281, guid: 8f66650911e9d488fbc12c201e6449de, type: 3}
       propertyPath: started.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_BoolArgument
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8050546849639997281, guid: 8f66650911e9d488fbc12c201e6449de, type: 3}
       propertyPath: finished.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_BoolArgument
@@ -1335,7 +1335,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8bbe99944e9152b4ba726c15e2ee4072, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  userid: 100
+  userid: 101
   Session: A
   dataSaveDir: C:\xuemei\RawData
   rightHandController: {fileID: 4860176229106756650}

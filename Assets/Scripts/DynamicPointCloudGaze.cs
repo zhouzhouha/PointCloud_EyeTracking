@@ -53,7 +53,7 @@ public class DynamicPointCloudGaze : MonoBehaviour
     Vector3 Valid_gaze_origin_world;
     Vector3 Valid_gaze_direction_world;
     // Dir of the collected json file
-    string GazeDataDir = @"D:\xuemei\RawData\user_005\20230114-2001_005_A.json";
+    string GazeDataDir = @"C:\xuemei\RawData\user_100\20230302-2115_100_A.json";
     string userid;
     string session;
 

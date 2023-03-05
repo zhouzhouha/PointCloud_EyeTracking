@@ -59,11 +59,8 @@ public class RatingController : MonoBehaviour
             Debug.LogError("Can not get a valid object of MainController!");
         }
 
-        renderControl = FindObjectOfType<RenderController>();
-        if (renderControl == null)
-        {
-            Debug.LogError("Can not get a valid object of RenderController!");
-        }
+        
+
         ButtonBad = GameObject.Find("ButtonBad");
         ButtonPoor = GameObject.Find("ButtonPoor");
         ButtonFair = GameObject.Find("ButtonFair");
@@ -102,7 +99,12 @@ public class RatingController : MonoBehaviour
     //Deactivates the old FillRect and assigns a new one.
     void Start()
     {
-        
+        renderControl = FindObjectOfType<RenderController>();
+        if (renderControl == null)
+        {
+            Debug.LogError("Can not get a valid object of RenderController!");
+        }
+
         dataOutputDir = mainControl.dataSaveDir;
         experimentID = string.Format("{0}_{1}{2}", mainControl.userid, mainControl.Session, ".txt");
         savePath = Path.Combine(dataOutputDir, experimentID);

@@ -95,11 +95,11 @@ namespace GazeMetrics
                 Debug.LogError("Can not get a valid object of MainController!");
             }
 
-            renderControl = FindObjectOfType<RenderController>();
-            if (renderControl == null)
-            {
-                Debug.LogError("Can not get a valid object of RenderController!");
-            }
+            //renderControl = FindObjectOfType<RenderController>();
+            //if (renderControl == null)
+            //{
+            //    Debug.LogError("Can not get a valid object of RenderController!");
+            //}
 
 
             if (!SRanipal_Eye_Framework.Instance.EnableEye)
@@ -137,6 +137,12 @@ namespace GazeMetrics
 
         void Start()
         {
+            renderControl = FindObjectOfType<RenderController>();
+            if (renderControl == null)
+            {
+                Debug.LogError("Can not get a valid object of RenderController!");
+            }
+
             Debug.Log($"{this.Name}: Start()");
 
             dataOutputDir = mainControl.dataSaveDir;
