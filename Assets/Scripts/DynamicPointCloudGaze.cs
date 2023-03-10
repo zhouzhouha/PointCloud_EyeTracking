@@ -18,14 +18,13 @@ public class DynamicPointCloudGaze : MonoBehaviour
     public StreamReader sr;
     [Space(10)]
 
-
     public StreamWriter sw;
     public StreamReader srTransformData;
 
     private List<Vector3> currentPointCloud = new List<Vector3>();
+    private List<Vector3> currentPointCloudRotated = new List<Vector3>();
     private List<float> currentPointGazeImportance = new List<float>();
     private List<Tuple<Vector3, float>> markerpos = new List<Tuple<Vector3, float>>();
-    private int currentIndex;
     private List<Vector3> pointWithinRange = new List<Vector3>();
     private List<int> pointIndices = new List<int>();
 
@@ -35,8 +34,11 @@ public class DynamicPointCloudGaze : MonoBehaviour
     public float acceptingDepthRange;
     public int angleSegments = 10;
     public int slices = 16;
-    public float kappa = 1.5f;
-    public float theta = 1.5f;
+    //public float kappa = 1.5f;
+    //public float theta = 1.5f;
+    public int ignoreTime = 400; //Ignore the initial 800ms
+    private int deleteTime;
+    private int previousIndex = 1;
 
     public bool obtainOnlyResult = false;
 
@@ -53,36 +55,31 @@ public class DynamicPointCloudGaze : MonoBehaviour
     Vector3 Valid_gaze_origin_world;
     Vector3 Valid_gaze_direction_world;
     // Dir of the collected json file
-    string GazeDataDir = @"C:\xuemei\RawData\user_100\20230302-2115_100_A.json";
+    string GazeDataDir = @"C:\xuemei\RawData\user_001\20230307-2215_001_A.json";
     string userid;
     string session;
 
-
-
     float fixationDispersionThreshold = 3f;
     float fixationIntervalThreshold = 100;
-    string pattern = "DUMP";
-    string replace = "PLY";
-    //public string only_folder_filename;
-    //public string HeatMapSaveName;
+    string PLYpath = @"F:\PointCloud_Dataset_Binary\";
+    string pattern = "PointCloud_Dump";
+    string replace = "PointCloud_Dataset_Binary";
     public float CompensateAngle;
     public bool needWrite;
     public string savefoldername;
     public string save_txt_filename;
     List<ValidGaze> gazeWindowSet = new List<ValidGaze>();
 
-
     private Thread threadProcessGaze;
 
     void Start()
     {
         // get userid and session from GazeDataDir
-        // TODO
         string jsonfilename = Path.GetFileNameWithoutExtension(GazeDataDir);
         string[] words = jsonfilename.Split('_');
         userid = words[1];
         session = words[2];
-        Debug.Log("Current userid is" + userid + " and session is" + session);
+        Debug.Log("Current userid is " + userid + " and session is " + session);
         GazeRayRenderer = GetComponent<LineRenderer>();
         GazeRayRenderer.material = new Material(Shader.Find("Sprites/Default"));
         // a simple 2 color gradient with a fixed alpha of 1.0f.
@@ -96,8 +93,8 @@ public class DynamicPointCloudGaze : MonoBehaviour
 
     void Update()
     {
-        ShowGaze(Valid_gaze_origin_world, Valid_gaze_direction_world);
-        if (Keyboard.current.spaceKey.isPressed)
+        //ShowGaze(Valid_gaze_origin_world, Valid_gaze_direction_world);
+        if (Keyboard.current.spaceKey.isPressed) // must press the spacekey then you can start processing the data? Need to change
         {
             // Spacebar was pressed 
             Debug.Log("Spacebar was pressed !");
@@ -115,8 +112,6 @@ public class DynamicPointCloudGaze : MonoBehaviour
         }
     }
 
-
-
     void ShowGaze(Vector3 Valid_gaze_orgin, Vector3 Valid_gaze_direction)
     {
         GazeRayRenderer.SetPosition(0, Valid_gaze_orgin);
@@ -132,15 +127,10 @@ public class DynamicPointCloudGaze : MonoBehaviour
         if (isProcessing)
             return;
         isProcessing = true;
-
         threadProcessGaze = new Thread(ProcessFunc);
         threadProcessGaze.IsBackground = true;
         threadProcessGaze.Start();
     }
-
-
-
-
 
     void ProcessFunc()
     {
@@ -151,7 +141,7 @@ public class DynamicPointCloudGaze : MonoBehaviour
 
     Dictionary<string, List<Vector3>> namePointList = new Dictionary<string, List<Vector3>>();
 
-    List<Vector3> LoadPointCloudReturn(string pc_filename)
+    List<Vector3> LoadPointCloudReturn(string pc_filename, int rotationAngleYinDegree)
     {
         // whether in temp list
         bool dataExist = namePointList.ContainsKey(pc_filename);
@@ -170,6 +160,17 @@ public class DynamicPointCloudGaze : MonoBehaviour
                 for (int i = 0; i < body.vertices.Count; i++)
                 {
                     Vector3 v = body.vertices[i];
+                    //Vector3 v_Rotated = 
+                    // Rotate and get the new positions for each vector
+                    //for (int i_point = 0; i_point < currentPointCloud.Count; i_point++)
+                    //{
+                    //    Apply the rotation to the vector
+                    //    Vector3 rotatedVector = Quaternion.Euler(0, (gazeq.rotation_matrix), 0) * currentPointCloud[i_point];
+
+                    //    currentPointCloudRotated.Add(rotatedVector);
+                    //}
+
+
                     pcd.Add(v);
                 }
             }
@@ -178,7 +179,7 @@ public class DynamicPointCloudGaze : MonoBehaviour
                 Debug.LogWarning("currentObject Not Found");
             }
 
-            // count limitation
+            // count limitation ?? why the limitation  is 3 xuemei??
             if (namePointList.Count > 3)
             {
                 var keys = namePointList.Keys.ToList();
@@ -189,7 +190,7 @@ public class DynamicPointCloudGaze : MonoBehaviour
             namePointList.Add(pc_filename, pcd);
         }
 
-        return namePointList[pc_filename];
+        return namePointList[pc_filename]; // return the pcd 
     }
 
 
@@ -197,7 +198,7 @@ public class DynamicPointCloudGaze : MonoBehaviour
     {
         currentPointGazeImportance.Clear();
 
-        for (int i = 0; i < currentPointCloud.Count; i++)
+        for (int i = 0; i < currentPointCloudRotated.Count; i++)
         {
             currentPointGazeImportance.Add(0f);
         }
@@ -354,7 +355,7 @@ public class DynamicPointCloudGaze : MonoBehaviour
         return data;
     }
 
-    DataBody ReadDataBody(DataHeader header, BinaryReader reader)
+    DataBody ReadDataBody(DataHeader header, BinaryReader reader)  //maybe I can rotate the point cloud from here?
     {
         var data = new DataBody(header.vertexCount);
 
@@ -378,6 +379,7 @@ public class DynamicPointCloudGaze : MonoBehaviour
                     case DataProperty.Data64: reader.BaseStream.Position += 8; break;
                 }
             }
+
             data.AddPoint(x, y, z);
 
         }
@@ -399,17 +401,39 @@ public class DynamicPointCloudGaze : MonoBehaviour
         {
             FullData_cwi datai = fullDataList[i];
 
-            string dump_filename = datai.pcname; // 
+            string dump_filename = datai.pcname; //rafa_001.ply
+            if ((datai.pcIndex == 0) || (datai.pcIndex == 1))
+                continue;
+
             if (string.IsNullOrWhiteSpace(dump_filename))  // invalid pcname
                 continue;
+
+            int currentIndex = datai.pcIndex; // pcIndex = 2
+            if (previousIndex != currentIndex) //if switched to the next point cloud  previousIndex = 1;
+            {
+                int firstTime = datai.eye_data_cwi.timestamp;
+                deleteTime = firstTime + ignoreTime;  //deletetime = 2 first + 400
+                previousIndex = currentIndex; //previousIndex = 2
+            }
+            
+            int currentTime = datai.eye_data_cwi.timestamp;
+            if (currentTime < deleteTime) 
+            {
+                continue;
+            }
 
             // valid combined bit_mask  invalid bit_mask of eye data
             if (datai.eye_data_cwi.verbose_data.combined.eye_data.eye_data_validata_bit_mask != 3)
                 continue;
 
+
             // for showing the gaze
             Valid_gaze_origin_world = datai.gaze_origin_global_combined;
             Valid_gaze_direction_world = datai.gaze_direction_global_combined;
+            // you need to pay attention that each time when we have a eye data record, we need to load a new point cloud frame. The same sequence but with different frame.
+            // STEP1: get the stimuli (sequence), H1_C1_R1: then get the current timestamp + ignored 800 ms and then continue, current rotation matrix
+            // STEP2: get the rotation matrix, if the rotation matrix is different with the currrent rotation matrix, continue;
+            // STEP3: apply the rotation matrix to the current point cloud. 
 
             // 1.create a ValidGaze
             ValidGaze gaze = new ValidGaze();
@@ -424,6 +448,7 @@ public class DynamicPointCloudGaze : MonoBehaviour
             matrix.m02 = cm.e02; matrix.m12 = cm.e12; matrix.m22 = cm.e22; matrix.m32 = cm.e32;
             matrix.m03 = cm.e03; matrix.m13 = cm.e13; matrix.m23 = cm.e23; matrix.m33 = cm.e33;
             gaze.cameramatrix = matrix;
+            gaze.rotation_matrix = datai.rotation_matrix;
 
             // 2. is fixation point or not? (velocity based method)
             int flag = CalculateFixation(gaze, fixationDispersionThreshold, fixationIntervalThreshold);
@@ -438,16 +463,22 @@ public class DynamicPointCloudGaze : MonoBehaviour
                     ValidGaze gazeq = gazeWindowSet[q];
 
                     // 2. load corresponding point cloud, and reset gazeimportance, and csv to get the positions of markers
-                    if (previousFilename != gazeq.filename)
+                    if (previousFilename != gazeq.filename) //first true
                     {
                         // here must load new point cloud, because the weight list should be reset
-                        // load the point cloud frame by file name ply format
-                        // right hand coordinate system, load corresponding point cloud data
-                        currentPointCloud = LoadPointCloudReturn(Regex.Replace(Path.ChangeExtension(gazeq.filename, "ply"), pattern, replace));
+                        
+                        currentPointCloudRotated = new List<Vector3>(); //initialize the list (global variable) 
+                        var pointcloudPathname = Path.ChangeExtension(gazeq.filename, "ply");
+                        string folderName = Path.GetFileName(Path.GetDirectoryName(pointcloudPathname));
+                        string pointcloudFilename = Path.GetFileName(pointcloudPathname);
+                        string currentFilePath = Path.Combine(PLYpath, folderName, pointcloudFilename);
+
+                        currentPointCloud = LoadPointCloudReturn(currentFilePath, gazeq.rotation_matrix);
+                        
 
                         // load the corresponding csv file, get the positions of markers
                         string pcFlag = Path.GetFileName(Path.GetDirectoryName(gazeq.filename)); // H1_C1_R1
-                        string csvfn = $"*_{userid}_{session}_{pcFlag}_experiment_data_metrics.csv";
+                        string csvfn = $"*_{userid}_{session}_{pcFlag}_*_experiment_data_metrics.csv";
                         string[] fns = Directory.GetFiles(Path.GetDirectoryName(GazeDataDir), csvfn);
                         if (fns.Length != 1)
                             Debug.LogWarning("GazeMetrics has multiple metric csv file, should only has one csv file for one sequence!");
@@ -468,17 +499,17 @@ public class DynamicPointCloudGaze : MonoBehaviour
                         bool gazeInnerCircle = ErrorInterpolation(markerpos, localPos, localDir, out CompensateAngle);
 
                         if (gazeInnerCircle)
-                            RegisterPoints(gazeq.gaze_direction_global_combined, gazeq.gaze_origin_global_combined, currentPointCloud, CompensateAngle, 0.05f);
+                            RegisterPoints(gazeq.gaze_direction_global_combined, gazeq.gaze_origin_global_combined, currentPointCloudRotated, CompensateAngle, 0.05f);
 
                         //// calc salency points, i.e., weights of the points of current point cloud
-                        //RegisterPoints(gazeq.gaze_direction_global_combined, gazeq.gaze_origin_global_combined, currentPointCloud, CompensateAngle, 0.05f);
+                        
                     }
 
                     //SaveDataWithWeightCounter(gazeq, flag == 2);  // only save pcd frames that have fixation gazes
                     SaveDataWithWeightCounter(gazeq, true);  // save every pcd frame
                 }
 
-                gazeWindowSet.Clear();
+                gazeWindowSet.Clear(); // gazeWindowSet will be empty because 
             }
             else if (flag == 0)  // here should add current gaze, is same as next line
             { }                  // if flag ==0, means 1. no enough gaze points; 2 
@@ -504,6 +535,7 @@ public class DynamicPointCloudGaze : MonoBehaviour
         // 5. weight counter, average
         if (gaze.filename != previousGaze.filename)
         {
+            
             var weight_temp = counter.Average();
             if (weight_temp != null && save)
             {
@@ -511,9 +543,21 @@ public class DynamicPointCloudGaze : MonoBehaviour
                 savefoldername = Path.GetFileName(Path.GetDirectoryName(previousGaze.filename));
                 save_txt_filename = Path.GetFileName(Path.ChangeExtension(previousGaze.filename, "txt"));
 
-                var previouspcd = LoadPointCloudReturn(Regex.Replace(Path.ChangeExtension(previousGaze.filename, "ply"), pattern, replace));
+                var pointcloudPathname = Path.ChangeExtension(previousGaze.filename, "ply");
+                string folderName = Path.GetFileName(Path.GetDirectoryName(pointcloudPathname));
+                string pointcloudFilename = Path.GetFileName(pointcloudPathname);
 
-                WritePointCloud(previouspcd, weight_temp,
+                string newFilePath = Path.Combine(PLYpath, folderName, pointcloudFilename);
+                var previouspcd = LoadPointCloudReturn(newFilePath, previousGaze.rotation_matrix);
+                List<Vector3> previouspcdRotated = new List<Vector3>();
+                // Rotate and get the new positions for each vector
+                for (int i_point = 0; i_point < previouspcd.Count; i_point++)
+                {
+                    // Apply the rotation to the vector
+                    Vector3 rotatedVector = Quaternion.Euler(0, (previousGaze.rotation_matrix), 0) * previouspcd[i_point];
+                    previouspcdRotated.Add(rotatedVector);
+                }
+                WritePointCloud(previouspcdRotated, weight_temp,
                             savefoldername, save_txt_filename, counter.Count, previousGaze.timestamp);
             }
 
@@ -674,13 +718,13 @@ public class DynamicPointCloudGaze : MonoBehaviour
             for (int i = 0; i < gazeWindowSet.Count; i++)
             {
                 Vector3 rayi = gazeWindowSet[i].gaze_direction_global_combined;
-                float angle = Mathf.Abs(Vector3.Angle(rayi, currRay));
+                float angle = Mathf.Abs(Vector3.Angle(rayi, currRay)); // the angle betwwen last gaze and current gaze
 
-                if (angle > fixationMaxDispersion)
+                if (angle > fixationMaxDispersion) //angle is larger than threshold
                 {
                     // timespan between the first gaze and the last gaze
                     float fixedTime = gazeWindowSet[gazeWindowSet.Count - 1].timestamp - gazeWindowSet[0].timestamp;
-                    if (fixedTime > fixationMinInterval)
+                    if (fixedTime > fixationMinInterval) // timespan larger than threshold
                         return 2;
                     // if angle judgement is ok, but the fixation time is too short, should be considered as saccade??
                     return 1;
@@ -715,7 +759,6 @@ public class DynamicPointCloudGaze : MonoBehaviour
             for (int i = 0; i < pointlist.Count; i++)
             {
                 Vector3 point = pointlist[i];
-                //point.z *= -1; // to unity left hand 
                 Vector3 dir = point - camPos;
                 float angleInDegree = Mathf.Abs(Vector3.Angle(gazeRay, dir));
 
@@ -766,7 +809,6 @@ public class DynamicPointCloudGaze : MonoBehaviour
                 foreach (int j in segments[i])
                 {
                     Vector3 point = pointlist[j];
-                    //point.z *= -1; // To do change pointlist mirror z
                     Vector3 diffvec = point - closestPoints[i];
                     float depth = Vector3.Dot(gazeRay, diffvec) / gazeRay.magnitude;
 
@@ -813,23 +855,6 @@ public class DynamicPointCloudGaze : MonoBehaviour
                 sw.Close();
                 sw.Dispose();
             }
-            //else
-            //{
-            //    path = Path.Combine(SaveFolderName, TimeStamp.ToString() + "_" + savefilename);
-            //    File.WriteAllText(path, string.Empty);
-            //    sw = new StreamWriter(path, true);
-            //    sw.WriteLine("PosX PosY PosZ GazeCount");
-            //    sw.Flush();
-
-            //    for (int i = 0; i < pointlist.Count; i++)
-            //    {
-            //        sw.WriteLine(pointlist[i].x + " " + pointlist[i].y + " " + pointlist[i].z * (-1) + " " + currentPointGazeImportance[i]);
-            //        sw.Flush();
-
-            //    }
-            //    sw.Dispose();
-            //}
-
         }
     }
 
@@ -841,11 +866,13 @@ public class DynamicPointCloudGaze : MonoBehaviour
     public class FullData_cwi
     {
         public CameraMatrix camera_matrix { get; set; }
-        public int pointcloudTs { get; set; }
+        //public int pointcloudTs { get; set; }
         public EyeDataCwi eye_data_cwi { get; set; }
         public Vector3 gaze_origin_global_combined { get; set; }
         public Vector3 gaze_direction_global_combined { get; set; }
         public string pcname { get; set; }
+        public int rotation_matrix { get; set; } // rotation angle y
+        public int pcIndex { get; set; } // pcIndex
     }
 
     public class ValidGaze
@@ -856,6 +883,8 @@ public class DynamicPointCloudGaze : MonoBehaviour
         public int timestamp { get; set; }
         public Matrix4x4 cameramatrix { get; set; }
         public string filename { get; set; }
+        public int rotation_matrix { get; set; } // rotation angle y
+        public int pcIndex { get; set; } // pcIndex
     }
 
     public class CameraMatrix

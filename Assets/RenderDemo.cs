@@ -9,19 +9,14 @@ using System.Collections;
 using System.IO;
 using Random = System.Random;
 
-public class RenderController : MonoBehaviour
+public class RenderDemo : MonoBehaviour
 {
-    //[Tooltip("The reader for the pointclouds for which we get gaze data")]
-    //public PrerecordedPointCloudReader pcdReader; // the source reader from prefab
-    //public PointCloudRenderer pcdRender;          // the source pcdRender from prefab
- 
-
     [Tooltip("pointcloudPlayback for preload the path")]
     public PointCloudPlayback pointcloudPlayback;
 
     [Tooltip("Input the folder name for the sequence")]
     public List<string> pc_paths;
-    
+
     private static EyeData_v2 eyeData = new EyeData_v2();
     private bool eye_callback_registered = false;
     private static Matrix4x4 localToWorld;
@@ -29,7 +24,7 @@ public class RenderController : MonoBehaviour
     private static int RotationAngleY; // why this need to be static?
     private static int currentIdx = 0;
     public string RandomOrderPath;
-    
+
 
     //stats
     public double interval = 0;
@@ -42,7 +37,7 @@ public class RenderController : MonoBehaviour
 
 
     [Tooltip("Get the mainControl and Randomizer")]
-    private MainController mainControl;
+    private MainControllerDemo mainControl;
 
 
     [SerializeField]
@@ -83,7 +78,7 @@ public class RenderController : MonoBehaviour
             }
         }
 
-        mainControl = FindObjectOfType<MainController>();
+        mainControl = FindObjectOfType<MainControllerDemo>();
         if (mainControl == null)
         {
             Debug.LogError("Can not get a valid object of MainController!");
@@ -136,10 +131,10 @@ public class RenderController : MonoBehaviour
     private List<string> ReadPointCloudPath(string user_1_s1)
     {
         string filepath = user_1_s1;
-        string pc_dir = @"C:\PointCloud_Dump\"; //F:\DUMP_NEW 
+        string pc_dir = @"C:\Demo\LOOT_DUMP\"; //frmo the demo path
         string pc_folder;
         StreamReader reader = null;
-        if (File.Exists(filepath)) 
+        if (File.Exists(filepath))
         {
             reader = new StreamReader(File.OpenRead(filepath));
             string headerline = reader.ReadLine();
@@ -175,16 +170,9 @@ public class RenderController : MonoBehaviour
             return;
         }
 
-        //if (pcdReader == null) // which is inactive
-        //{
-        //    Debug.LogError("GazeTrackerXuemei needs a pointcloudreader");
-        //    enabled = false;
-        //    return;
-        //}
 
-        
         // gaze data file path
-        var mainControl = FindObjectOfType<MainController>();
+       
         string dataSavePath = mainControl.dataSaveDir;
         if (!System.IO.Directory.Exists(dataSavePath))
             Directory.CreateDirectory(dataSavePath);
@@ -214,8 +202,6 @@ public class RenderController : MonoBehaviour
         //lastCameraMatrix = Camera.main.cameraToWorldMatrix; //  model matrix
         localToWorld = Camera.main.transform.localToWorldMatrix;
         framename = pointcloudPlayback.cur_renderer.metadataMostRecentReception.filename;  // how to get the filename??
-        //Debug.Log("Render controller (pointcloud sequence name): " + framename);
-        //Debug.Log("Rotation Matrix is: " + RotationAngleY);
 
         if (SRanipal_Eye_Framework.Status != SRanipal_Eye_Framework.FrameworkStatus.WORKING &&
             SRanipal_Eye_Framework.Status != SRanipal_Eye_Framework.FrameworkStatus.NOT_SUPPORT)
@@ -223,7 +209,7 @@ public class RenderController : MonoBehaviour
             Debug.LogWarning(" Eye tracking framework not working or not supported");
             return;
         }
-  
+
         if (SRanipal_Eye_Framework.Instance.EnableEyeDataCallback == true)
         {
             RegisterEyeTracker();
@@ -236,22 +222,7 @@ public class RenderController : MonoBehaviour
 
         if (ShowLineForGaze)
         {
-            //gazeOriginWorldLeft = gaze_origin_global_combined;
-            //GazeRayRendererLeft.gameObject.SetActive(true);
-            //GazeRayRendererRight.gameObject.SetActive(true);
-            //GazeRayRendererCombined.gameObject.SetActive(true);
-            //GazeRayRendererLeft.SetPosition(0, gazeOriginWorldLeft); //010*0.05
-            //GazeRayRendererLeft.SetPosition(1, gazeOriginWorldLeft + gazeDirectionWorldLeft * LengthOfRay);
-            //GazeRayRendererLeft.startColor = Color.red;
-            //GazeRayRendererLeft.endColor = Color.red;
-            //GazeRayRendererLeft.gameObject.transform.position = gazeOriginWorldLeft;
-
-            //GazeRayRendererRight.SetPosition(0, gazeOriginWorldRight); //010*0.05
-            //GazeRayRendererRight.SetPosition(1, gazeOriginWorldRight + gazeDirectionWorldRight * LengthOfRay);
-            //GazeRayRendererRight.startColor = Color.green;
-            //GazeRayRendererRight.endColor = Color.green;
-            //GazeRayRendererRight.gameObject.transform.position = gazeOriginWorldRight;
-
+           
             GazeRayRendererCombined.SetPosition(0, gazeOriginWorldCombined); //010*0.05
             GazeRayRendererCombined.SetPosition(1, gazeOriginWorldCombined + gazeDirectionWorldCombined * LengthOfRay);
             GazeRayRendererCombined.startColor = Color.blue;
@@ -305,7 +276,7 @@ public class RenderController : MonoBehaviour
             this.gameObject.SetActive(false);
         }
 
-        
+
         pc_folder_name = dirpath;
         //initilization for the first folder path added by xuemei 2023.3.1
         pointcloudPlayback.dirName = dirpath;
@@ -317,7 +288,7 @@ public class RenderController : MonoBehaviour
 
         if (OnCurrDirPathUpdated != null)
         {
-            OnCurrDirPathUpdated(dirpath, currentIdx);  
+            OnCurrDirPathUpdated(dirpath, currentIdx);
         }
 
         //mainControl.NewSequenceHasStarted();
@@ -549,5 +520,8 @@ public class RenderController : MonoBehaviour
         public float eye_squeeze; /*!<A value representing how the eye is closed tightly.*/
         public float eye_frown; /*!<A value representing user's frown.*/
     };
-
 }
+
+
+
+

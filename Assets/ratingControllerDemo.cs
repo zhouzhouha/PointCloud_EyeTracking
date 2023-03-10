@@ -7,28 +7,20 @@ using UnityEngine.XR.Interaction.Toolkit;
 using System.IO;
 using System.Text;
 using Unity.VisualScripting;
-
-public class RatingController : MonoBehaviour
+public class ratingControllerDemo : MonoBehaviour
 {
     //public Slider mainSlider;
     //Reference to new "RectTransform"(Child of FillArea).
     //public RectTransform newFillRect;
     public ActionBasedController rightHandController;
 
-    private RenderController renderControl;
+    private RenderDemo renderControl;
 
 
     public TextMeshPro textForSliderValue;
 
-    //private Text textonSliderValue;
-    //private Text Excellent;
-    //private Text Good;
-    //private Text Fair;
-    //private Text Poor;
-    //private Text Bad;
 
-    private MainController mainControl;
-    private RenderController renderController;
+    private MainControllerDemo mainControl;
     private string dataOutputDir;
     private string experimentID;
     private string savePath;
@@ -54,13 +46,13 @@ public class RatingController : MonoBehaviour
 
     void Awake()
     {
-        mainControl = FindObjectOfType<MainController>();
+        mainControl = FindObjectOfType<MainControllerDemo>();
         if (mainControl == null)
         {
             Debug.LogError("Can not get a valid object of MainController!");
         }
 
-        
+
 
         ButtonBad = GameObject.Find("ButtonBad");
         ButtonPoor = GameObject.Find("ButtonPoor");
@@ -100,7 +92,7 @@ public class RatingController : MonoBehaviour
     //Deactivates the old FillRect and assigns a new one.
     void Start()
     {
-        renderControl = FindObjectOfType<RenderController>();
+        renderControl = FindObjectOfType<RenderDemo>();
         if (renderControl == null)
         {
             Debug.LogError("Can not get a valid object of RenderController!");
@@ -119,7 +111,7 @@ public class RatingController : MonoBehaviour
 
     private void OnCurrDirPathUpdated(string dirpath, int curPCindex)
     {
-        // get "H5_C1_R5" from "E:\DUMP\H5_C1_R5"
+   
         string pcdName = Path.GetFileName(dirpath);
         pc_id = pcdName;
         pc_index = curPCindex;
@@ -154,25 +146,6 @@ public class RatingController : MonoBehaviour
 
 
 
-    //public void RecordRatingScore(string strs, string path)
-    //{
-    //    Debug.Log("Here is the rating score of the User" + mainSlider.value.ToString());
-
-    //    if (!File.Exists(path))
-    //    {
-    //        FileStream fs = File.Create(path);
-    //        fs.Dispose();
-    //    }
-
-    //    using (StreamWriter stream = new StreamWriter(path, true))
-    //    {
-    //        stream.WriteLine(strs);
-    //    }
-
-    //    //here is where the user should go to the calibration scene, remember to disable the rating
-    //    //create seperate function to call (do everything by funcation then call them!) save the socre
-
-    //}
 
     public void SaveRatingScoreButton(string strs, string path)
     {
@@ -194,8 +167,9 @@ public class RatingController : MonoBehaviour
 
     }
 
-
-
 }
+
+
+
 
 

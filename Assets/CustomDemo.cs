@@ -11,7 +11,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 
 namespace GazeMetrics
 {
-    public class CustomCalGazeMetric : MonoBehaviour
+    public class CustomDemo : MonoBehaviour
     {
 
         [Header("Scene References")]
@@ -60,8 +60,8 @@ namespace GazeMetrics
         private string Name { get { return GetType().Name; } }
 
 
-        private MainController mainControl;
-        private RenderController renderControl;
+        private MainControllerDemo mainControl;
+        private RenderDemo renderControl;
         private string dataOutputDir;
         private string experimentID;
 
@@ -89,18 +89,13 @@ namespace GazeMetrics
             Debug.Log($"{this.Name}: Awake()");
 
 
-            mainControl = FindObjectOfType<MainController>();
+            mainControl = FindObjectOfType<MainControllerDemo>();
             if (mainControl == null)
             {
                 Debug.LogError("Can not get a valid object of MainController!");
             }
 
-            //renderControl = FindObjectOfType<RenderController>();
-            //if (renderControl == null)
-            //{
-            //    Debug.LogError("Can not get a valid object of RenderController!");
-            //}
-
+          
 
             if (!SRanipal_Eye_Framework.Instance.EnableEye)
             {
@@ -115,8 +110,6 @@ namespace GazeMetrics
         void OnEnable()
         {
             Finished_calibration = false; // first set the calibration state to false
-            // marker.gameObject.SetActive(false); TODO First set the marker to false, so when we press trigger it can make the eyes show up. 
-            // after the stop(), marker will be false.
             Debug.Log($"{this.Name}: OnEnable()");
 
             calibration.OnCalibrationSucceeded += CalibrationSucceeded;
@@ -139,7 +132,7 @@ namespace GazeMetrics
 
         void Start()
         {
-            renderControl = FindObjectOfType<RenderController>();
+            renderControl = FindObjectOfType<RenderDemo>();
             if (renderControl == null)
             {
                 Debug.LogError("Can not get a valid object of RenderController!");
@@ -150,7 +143,7 @@ namespace GazeMetrics
             dataOutputDir = mainControl.dataSaveDir;
             string pcdpath = renderControl.GetCurrentPcdPath();
             int pcIndex = renderControl.GetCurrentpcIndex();
-            OnCurrDirPathUpdated(pcdpath,pcIndex);
+            OnCurrDirPathUpdated(pcdpath, pcIndex);
             renderControl.OnCurrDirPathUpdated += this.OnCurrDirPathUpdated;
         }
 
@@ -181,6 +174,7 @@ namespace GazeMetrics
         {
             SetPreviewMarkers(showPreview);
             ////how to make sure the user must do all the calibration then stop???
+            ///mainControl.nextStageAction.action.triggered
             if (rightHandController.activateAction.action.triggered)
             {
 
@@ -281,8 +275,7 @@ namespace GazeMetrics
 
             calibration.StopCalibration(dataOutputDir, experimentID);
 
-            marker.gameObject.SetActive(false); // if this is true, then if the user press trigger again, it will not see the marker again (Original false)
-            //added by xuemei 2023.3.8
+            marker.gameObject.SetActive(false);
             SetPreviewMarkers(false);
             FinishedCalibrating();
 
@@ -478,3 +471,4 @@ namespace GazeMetrics
 
     }
 }
+

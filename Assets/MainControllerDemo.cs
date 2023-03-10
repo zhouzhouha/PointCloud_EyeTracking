@@ -8,27 +8,20 @@ using UnityEngine.InputSystem;
 using ViveSR.anipal.Eye;
 using Cwipc;
 using System;
-
-public class MainController : MonoBehaviour
+public class MainControllerDemo : MonoBehaviour
 {
     private int flag = 0;  // 0: render, 1: rating, 2: calibration  init state only the render is working
-    private RenderController renderController;
-    private RatingController ratingController;
-    private CustomCalGazeMetric cusGazeMetricController;
+    private RenderDemo renderController;
+    private ratingControllerDemo ratingController;
+    private CustomDemo cusGazeMetricController;
     private PointCloudPlayback pointcloudPlayback;
-    GameObject NextPointCloudHelper;
 
-    //[Tooltip("The reader for the pointclouds for which we get gaze data")]
-    //public PrerecordedPointCloudReader pcdReader;
-    ////public PointCloudRenderer pcdRender;
-
-
-
+    
     [Header("Experiment setting")]
-    public string userid = "001";
-    public string Session = "A";
+    public string userid = "1000";
+    public string Session = "b";
     public string dataSaveDir = @"C:\";
-   
+  
 
     [Header("RightHand Controller")]
     public ActionBasedController rightHandController;
@@ -36,7 +29,7 @@ public class MainController : MonoBehaviour
     [SerializeField] InputActionProperty m_nextStageAction;
     private float ignoreNextUntil;
 
-    public InputActionProperty nextStageAction { get => m_nextStageAction;  }
+    public InputActionProperty nextStageAction { get => m_nextStageAction; }
 
 
     private void Awake()
@@ -47,7 +40,7 @@ public class MainController : MonoBehaviour
         {
             Debug.LogError("dataSaveDir is empty!");
         }
-       
+
 
         dataSaveDir = Path.Combine(dataSaveDir, $"user_{userid}");
         if (!System.IO.Directory.Exists(dataSaveDir))
@@ -68,14 +61,13 @@ public class MainController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        renderController = FindObjectOfType<RenderController>();
-        ratingController = FindObjectOfType<RatingController>();
-        cusGazeMetricController = FindObjectOfType<CustomCalGazeMetric>();
+        renderController = FindObjectOfType<RenderDemo>();
+        ratingController = FindObjectOfType<ratingControllerDemo>();
+        cusGazeMetricController = FindObjectOfType<CustomDemo>();
         pointcloudPlayback = FindObjectOfType<PointCloudPlayback>();
-        NextPointCloudHelper = GameObject.Find("ShowingNextPointCloud");
 
         //// TODO
-        if ( ratingController == null || cusGazeMetricController == null || pointcloudPlayback == null)
+        if (ratingController == null || cusGazeMetricController == null || pointcloudPlayback == null)
         {
             Debug.LogError("renderController == null || ratingController == null || cusGazeMetricController == null || pointcloudPlayback == null !!!");
             UnityEditor.EditorApplication.isPlaying = false;
@@ -85,12 +77,8 @@ public class MainController : MonoBehaviour
         pointcloudPlayback.gameObject.SetActive(true);
         ratingController.gameObject.SetActive(false);
         cusGazeMetricController.gameObject.SetActive(false);
-        NextPointCloudHelper.SetActive(false);
 
-        //Debug.Log("The first path is :" + renderController.pcdReader.dirName); //already checked
-        //Debug.Log("pointcloudPlayback is " + pointcloudPlayback.gameObject.activeSelf); //already checked true!
-        //Debug.Log("Now is playback:" + pointcloudPlayback.dirName);    //already checked
-        //pointcloudPlayback.RendererStarted();
+        
 
     }
 
@@ -102,33 +90,31 @@ public class MainController : MonoBehaviour
         bool nextWasTriggered = rightHandController.selectAction.action.triggered;
 #endif
         bool nextWasTriggered = m_nextStageAction.action.triggered;
-        
-        if ( pointcloudPlayback.isRenderFinished && flag == 0)  // the number of loops has been played 
+
+        if (pointcloudPlayback.isRenderFinished && flag == 0)  // the number of loops has been played 
         {
-            //    ratingController.gameObject.SetActive(true);
-            //    cusGazeMetricController.gameObject.SetActive(false);
-            //    renderController.SetRenderActive(false);  // OnDestroy call Stop then reader = null ;
+      
             Debug.Log("Now flag is 0 and will disable playing the Point cloud!");
             flag = 1;
             pointcloudPlayback.isRenderFinished = false;
-            
+
+
         }
 
         else if (ratingController.FinishedRating && flag == 1)
         {
-            
+
             renderController.SetRenderActive(false);
             pointcloudPlayback.gameObject.SetActive(false);
             ratingController.gameObject.SetActive(false);
-            NextPointCloudHelper.SetActive(false);
-            cusGazeMetricController.gameObject.SetActive(true);  // in this scene only user used the trigger, the eye-ball will show up
+            cusGazeMetricController.gameObject.SetActive(true);
             Debug.Log("Now flag is 1 and from Rating to Error Profiling!");
             flag = 2;
 
         }
         // now: calib switch to next render
         // before switch to next render, need do the re-calibration
-        else if (nextWasTriggered && flag == 2)  // this is guided by Jack so I used the trackpad
+        else if (nextWasTriggered && flag == 2)
         {
             if (cusGazeMetricController.Finished_calibration)
             {
@@ -141,25 +127,25 @@ public class MainController : MonoBehaviour
                 }
 
                 Debug.Log("LaunchEyeCalibration Successuful!");
-                
+
+ 
+
                 renderController.RenderNext();
                 cusGazeMetricController.gameObject.SetActive(false);
                 ratingController.gameObject.SetActive(false);
-                NextPointCloudHelper.SetActive(false);
                 pointcloudPlayback.gameObject.SetActive(true);
                 renderController.SetRenderActive(true); // Todo: remove the frist 800 miliseconds data
                 pointcloudPlayback.Play(pointcloudPlayback.dirName);
                 Debug.Log("Now flag is 2 and doing the Calibration!");
                 flag = 0;
             }
-                
+
         }
-        
 
-    }
 
-    internal void NewSequenceHasStarted()
-    {
-        ignoreNextUntil = Time.realtimeSinceStartup + 10;
     }
 }
+
+
+
+
