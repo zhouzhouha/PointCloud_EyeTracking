@@ -27,7 +27,7 @@ public class MainController : MonoBehaviour
     [Header("Experiment setting")]
     public string userid = "001";
     public string Session = "A";
-    public string dataSaveDir = @"C:\";
+    public string dataSaveDir = @"C:\xuemei\RawData";
    
 
     [Header("RightHand Controller")]

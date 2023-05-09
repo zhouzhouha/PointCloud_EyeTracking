@@ -136,7 +136,7 @@ public class RenderController : MonoBehaviour
     private List<string> ReadPointCloudPath(string user_1_s1)
     {
         string filepath = user_1_s1;
-        string pc_dir = @"C:\PointCloud_Dump\"; //F:\DUMP_NEW 
+        string pc_dir = @"C:\PointCloud_Dump"; // 
         string pc_folder;
         StreamReader reader = null;
         if (File.Exists(filepath)) 
@@ -279,11 +279,10 @@ public class RenderController : MonoBehaviour
 
         string renderPath = pc_paths[currentIdx];
         // added by xuemei 2023.2.19
-        int y_degree = UnityEngine.Random.Range(0, 180);
+        int y_degree = UnityEngine.Random.Range(0, 360);//
         pointcloudPlayback.transform.rotation = Quaternion.Euler(0, y_degree, 0); // Test if the camera face to the center of the object! added byxuemei 
         Debug.Log("Currrent Point Cloud is:" + renderPath + currentIdx);
         UpdateDirPath(renderPath, y_degree, currentIdx);
-
         return true;
     }
 

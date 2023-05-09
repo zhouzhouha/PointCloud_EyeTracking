@@ -150,7 +150,7 @@ namespace GazeMetrics
             dataOutputDir = mainControl.dataSaveDir;
             string pcdpath = renderControl.GetCurrentPcdPath();
             int pcIndex = renderControl.GetCurrentpcIndex();
-            OnCurrDirPathUpdated(pcdpath,pcIndex);
+            OnCurrDirPathUpdated(pcdpath, pcIndex);
             renderControl.OnCurrDirPathUpdated += this.OnCurrDirPathUpdated;
         }
 
@@ -181,7 +181,7 @@ namespace GazeMetrics
         {
             SetPreviewMarkers(showPreview);
             ////how to make sure the user must do all the calibration then stop???
-            if (rightHandController.activateAction.action.triggered)
+            if (rightHandController.activateAction.action.triggered && !this.Finished_calibration)  // TODO
             {
 
                 if (!marker.gameObject.activeInHierarchy)
@@ -190,9 +190,6 @@ namespace GazeMetrics
                 }
 
             }
-
-
-
 
         }
 
@@ -230,12 +227,14 @@ namespace GazeMetrics
         {
             if (calibration.IsCalibrating)
             {
-                StopCalibration();
+                //StopCalibration();  // TODO
             }
             else
             {
                 StartCalibration();
             }
+
+
         }
 
         public void StartCalibration()
